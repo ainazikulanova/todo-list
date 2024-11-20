@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles/index.css" />
+    <link rel="stylesheet" href="./styles/vendor/reset.css" />
+    <title>Todo-list</title>
+  </head>
+  <body class="page">
+    <section class="todo-list">
+      <header class="todo-list__header">
+        <h1 class="todo-list__title">todos</h1>
+      </header>
+      <main class="todo-list__content">
+        <form class="todo-list__form" id="form">
+          <label for="taskInput"></label>
+          <input
+            id="taskInput"
+            class="todo-list__input"
+            type="text"
+            placeholder="What needs to be done?"
+            required
+          />
+          <ul class="todo-list__tasks" id="inputCheck"></ul>
+        </form>
+      </main>
+    </section>
+    <script src="./scripts/index.js"></script>
+  </body>
+</html>
