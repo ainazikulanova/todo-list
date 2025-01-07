@@ -5,3 +5,9 @@
   text-align: center;
   gap: 10px;
 }
+
+@media (max-width: 400px) {
+  .todo-list__links {
+    padding-left: 55px;
+  }
+}
