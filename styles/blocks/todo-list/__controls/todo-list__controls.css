@@ -1,0 +1,8 @@
+.todo-list__controls {
+  padding: 10px 18px;
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  gap: 10px;
+  background: #fff;
+}

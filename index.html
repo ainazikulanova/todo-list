@@ -9,12 +9,12 @@
   </head>
   <body class="page">
     <section class="todo-list">
-      <header class="todo-list__header">
-        <h1 class="todo-list__title">todos</h1>
+      <header>
+        <h1 class="title">todos</h1>
       </header>
       <main class="todo-list__content">
         <form class="todo-list__form" id="form">
-          <label for="taskInput"></label>
+          <a class="todo-list__arrow" id="arrow">▼</a>
           <input
             id="taskInput"
             class="todo-list__input"
@@ -24,6 +24,15 @@
           />
           <ul class="todo-list__tasks" id="inputCheck"></ul>
         </form>
+        <section class="todo-list__controls">
+          <span id="taskCounter" class="todo-list__counter"></span>
+          <ul class="todo-list__links">
+            <li><a class="todo-list__link">All</a></li>
+            <li><a class="todo-list__link">Active</a></li>
+            <li><a class="todo-list__link">Completed</a></li>
+          </ul>
+          <a id="clearBtn" class="clear-task">Clear completed</a>
+        </section>
       </main>
     </section>
     <script src="./scripts/index.js"></script>

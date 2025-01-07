@@ -1,22 +1,22 @@
-li {
+.todo-list__task {
   position: relative;
-  padding-left: 30px;
   padding: 15px;
+  width: 481px;
+  height: 35px;
   display: flex;
   align-items: center;
   gap: 20px;
   font-size: 24px;
   cursor: pointer;
-  border-radius: 15px;
   background-color: #fff;
   border: 1px solid #cfcfcf;
 }
 
-li:hover span {
+.todo-list__task:hover span {
   opacity: 1;
 }
 
-ul li span {
+ul .todo-list__task span {
   position: absolute;
   opacity: 0;
   right: 5px;
@@ -29,42 +29,19 @@ ul li span {
   transition: all 0.2s;
 }
 
-ul li span:hover {
+@media (max-width: 400px) {
+  .todo-list__task {
+    width: 286px;
+    height: 16px;
+  }
+}
+
+ul .todo-list__task span:hover {
   color: #b83f45;
   border-radius: 20px;
 }
 
-ul li.checked {
+ul .todo-list__task.checked {
   color: #a6a6a6;
   text-decoration: line-through;
-}
-
-.todo-list__checkbox {
-  appearance: none;
-  width: 40px;
-  height: 40px;
-  border: 2px solid #cfcfcf;
-  border-radius: 50%;
-  background-color: white;
-  cursor: pointer;
-  position: relative;
-}
-
-.todo-list__checkbox:checked {
-  border-color: #5ead61;
-}
-
-.todo-list__checkbox:checked::after {
-  transform: translate(15%, -5%);
-  content: "\2713";
-  position: absolute;
-  top: 0;
-  left: 4px;
-  font-size: 30px;
-  color: #5ead61;
-}
-
-.todo-list__checkbox:checked + label {
-  text-decoration: line-through;
-  color: #a6a6a6;
 }

@@ -1,0 +1,29 @@
+.todo-list__checkbox {
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #cfcfcf;
+  border-radius: 50%;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+}
+
+.todo-list__checkbox:checked {
+  border-color: #5ead61;
+}
+
+.todo-list__checkbox:checked::after {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  content: "\2713";
+  position: absolute;
+  font-size: 25px;
+  color: #5ead61;
+}
+
+.todo-list__checkbox:checked + label {
+  text-decoration: line-through;
+  color: #a6a6a6;
+}

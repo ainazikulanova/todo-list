@@ -1,0 +1,25 @@
+.todo-list__arrow {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  left: 23px;
+  top: 23px;
+  font-size: 20px;
+  color: #949494;
+  z-index: 10;
+  display: none;
+  transition: 0.2s color;
+
+  &:hover {
+    color: #484848;
+  }
+
+  &:active {
+    color: #484848;
+  }
+}
+
+.todo-list__arrow.visible {
+  display: block;
+  cursor: pointer;
+}

@@ -1,0 +1,12 @@
+.todo-list__counter {
+  width: 90px;
+  font-size: 13px;
+}
+
+.clear-task {
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
