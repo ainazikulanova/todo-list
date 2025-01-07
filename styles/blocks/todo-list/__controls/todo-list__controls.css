@@ -11,6 +11,8 @@
   .todo-list__controls {
     padding: 10px 15px;
     flex-wrap: wrap;
-    gap: 12px;
+    justify-content: center;
+    column-gap: 80px;
+    row-gap: 10px;
   }
 }
