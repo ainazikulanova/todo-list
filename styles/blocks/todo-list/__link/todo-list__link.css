@@ -4,8 +4,10 @@
   background-color: #fff;
   cursor: pointer;
   border-radius: 4px;
+}
 
-  &:hover {
+@media (hover: hover) {
+  .todo-list__link:hover {
     border: 1px solid #b83f45;
   }
 }

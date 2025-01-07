@@ -12,8 +12,10 @@
   border: 1px solid #cfcfcf;
 }
 
-.todo-list__task:hover span {
-  opacity: 1;
+@media (hover: hover) {
+  .todo-list__task:hover span {
+    opacity: 1;
+  }
 }
 
 ul .todo-list__task span {
@@ -36,9 +38,11 @@ ul .todo-list__task span {
   }
 }
 
-ul .todo-list__task span:hover {
-  color: #b83f45;
-  border-radius: 20px;
+@media (hover: hover) {
+  ul .todo-list__task span:hover {
+    color: #b83f45;
+    border-radius: 20px;
+  }
 }
 
 ul .todo-list__task.checked {

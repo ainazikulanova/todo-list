@@ -9,12 +9,14 @@
   z-index: 10;
   display: none;
   transition: 0.2s color;
+}
 
-  &:hover {
+@media (hover: hover) {
+  .todo-list__arrow:hover {
     color: #484848;
   }
 
-  &:active {
+  .todo-list__arrow:active {
     color: #484848;
   }
 }

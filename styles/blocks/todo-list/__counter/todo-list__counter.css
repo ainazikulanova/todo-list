@@ -5,8 +5,10 @@
 
 .clear-task {
   cursor: pointer;
+}
 
-  &:hover {
+@media (hover: hover) {
+  .clear-task:hover {
     text-decoration: underline;
   }
 }

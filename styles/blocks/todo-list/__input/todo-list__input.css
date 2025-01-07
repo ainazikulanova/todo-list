@@ -8,15 +8,17 @@
   font-size: 24px;
   transition: box-shadow 0.3s ease;
 
-  &:hover {
-    border: 1px solid #eea0a0e1;
-    cursor: pointer;
-  }
-
   &:focus {
     outline: 1px solid #eea0a0e1;
     border-color: #eea0a0e1;
     box-shadow: 0 0 10px #eea0a0e1;
+  }
+}
+
+@media (hover: hover) {
+  .todo-list__input:hover {
+    border: 1px solid #eea0a0e1;
+    cursor: pointer;
   }
 }
 
