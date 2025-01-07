@@ -6,3 +6,11 @@
   gap: 10px;
   background: #fff;
 }
+
+@media (max-width: 400px) {
+  .todo-list__controls {
+    padding: 10px 15px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

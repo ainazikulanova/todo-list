@@ -23,3 +23,10 @@
   display: block;
   cursor: pointer;
 }
+
+@media (max-width: 400px) {
+  .todo-list__arrow {
+    left: 20px;
+    top: 15px;
+  }
+}
