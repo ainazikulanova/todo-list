@@ -1,0 +1,9 @@
+.todo-list__clear-btn {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .todo-list__clear-btn:hover {
+    text-decoration: underline;
+  }
+}

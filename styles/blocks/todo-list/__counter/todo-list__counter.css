@@ -3,16 +3,6 @@
   font-size: 13px;
 }
 
-.clear-task {
-  cursor: pointer;
-}
-
-@media (hover: hover) {
-  .clear-task:hover {
-    text-decoration: underline;
-  }
-}
-
 @media (max-width: 400px) {
   .todo-list__counter {
     width: 100px;

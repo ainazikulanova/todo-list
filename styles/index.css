@@ -5,6 +5,7 @@
 @import url(./blocks/todo-list/todo-list.css);
 @import url(./blocks/todo-list/__arrow/todo-list__arrow.css);
 @import url(./blocks/todo-list/__input/todo-list__input.css);
+@import url(./blocks/todo-list/__clear-btn/todo-list__clear-btn.css);
 @import url(./blocks/todo-list/__controls/todo-list__controls.css);
 @import url(./blocks/todo-list/__counter/todo-list__counter.css);
 @import url(./blocks/todo-list/__links/todo-list__links.css);
