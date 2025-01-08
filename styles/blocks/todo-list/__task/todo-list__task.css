@@ -31,7 +31,7 @@ ul .todo-list__task span {
   transition: all 0.2s;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 520px) {
   .todo-list__task {
     width: 286px;
     height: 16px;

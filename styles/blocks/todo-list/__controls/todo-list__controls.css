@@ -7,7 +7,7 @@
   background: #fff;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 520px) {
   .todo-list__controls {
     padding: 10px 15px;
     flex-wrap: wrap;

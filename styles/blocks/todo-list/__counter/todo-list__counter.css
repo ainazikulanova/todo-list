@@ -3,7 +3,7 @@
   font-size: 13px;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 520px) {
   .todo-list__counter {
     width: 100px;
   }
