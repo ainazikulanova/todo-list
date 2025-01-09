@@ -11,21 +11,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function clearTasks() {
     const checkTasks =
-      taskInputCheck.querySelectorAll("todo-list__task.checked").length > 0;
+      taskInputCheck.querySelectorAll(".todo-list__task.checked").length > 0;
     clearBtn.style.opacity = checkTasks ? "1" : "0";
     clearBtn.style.pointerEvents = checkTasks ? "auto" : "none";
   }
 
   function toggleLinksVisibility() {
     const hasTasks =
-      taskInputCheck.querySelectorAll("todo-list__task").length > 0;
+      taskInputCheck.querySelectorAll(".todo-list__task").length > 0;
     controls.style.display = hasTasks ? "flex" : "none";
     arrow.classList.toggle("visible", hasTasks);
   }
 
   function updateTaskCounter() {
     const activeTasks = taskInputCheck.querySelectorAll(
-      "todo-list__task:not(.checked)"
+      ".todo-list__task:not(.checked)"
     ).length;
     taskCounter.textContent = `${activeTasks} item${
       activeTasks !== 1 ? "s" : ""
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function addTask(text, isCompleted) {
-    const li = document.createElement("todo-list__task");
+    const li = document.createElement("li");
     li.classList.add("todo-list__task");
 
     if (isCompleted) {
@@ -74,13 +74,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     taskInputCheck.appendChild(li);
 
-    label.addEventListener("dblclick", function () {
-      editTask(label, li);
+    label.addEventListener("click", preventDefaultAction);
+
+    label.addEventListener("dblclick", function (event) {
+      event.stopPropagation();
+      editTask(li);
     });
   }
 
-  function editTask(label, li) {
+  function preventDefaultAction(event) {
+    event.preventDefault();
+  }
+
+  taskInputCheck.addEventListener("dblclick", function (event) {
+    const li = event.target.closest(".todo-list__task");
+    if (
+      li &&
+      !event.target.classList.contains("todo-list__checkbox") &&
+      event.target.tagName !== "SPAN"
+    ) {
+      editTask(li);
+    }
+  });
+
+  function editTask(li) {
+    const label = li.querySelector("label");
+    if (!label) return;
+
     const currentText = label.textContent;
+
     const input = document.createElement("input");
     input.type = "text";
     input.value = currentText;
@@ -112,16 +134,16 @@ document.addEventListener("DOMContentLoaded", () => {
       label.textContent = newText;
       label.classList.add("left");
 
-      const uniqueId = `task-${Date.now()}`;
-      label.setAttribute("for", uniqueId);
-
       const checkbox = li.querySelector(".todo-list__checkbox");
-      checkbox.id = uniqueId;
+      const uniqueId = checkbox.id;
+      label.setAttribute("for", uniqueId);
 
       li.replaceChild(label, input);
 
+      label.addEventListener("click", preventDefaultAction);
+
       label.addEventListener("dblclick", function () {
-        editTask(label, li);
+        editTask(li);
       });
     }
 
@@ -131,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   clearBtn.addEventListener("click", function () {
-    const tasks = taskInputCheck.querySelectorAll("todo-list__task.checked");
+    const tasks = taskInputCheck.querySelectorAll(".todo-list__task.checked");
     tasks.forEach((task) => task.remove());
 
     toggleLinksVisibility();
@@ -141,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   taskInputCheck.addEventListener("click", function (event) {
     if (event.target.classList.contains("todo-list__checkbox")) {
-      const li = event.target.closest("todo-list__task");
+      const li = event.target.closest(".todo-list__task");
       li.classList.toggle("checked", event.target.checked);
       updateTaskCounter();
       clearTasks();
@@ -162,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function filterTasks(filter) {
-    const tasks = taskInputCheck.querySelectorAll("todo-list__task");
+    const tasks = taskInputCheck.querySelectorAll(".todo-list__task");
     tasks.forEach((task) => {
       switch (filter) {
         case "all":
@@ -199,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   arrow.addEventListener("click", function () {
-    const allTasks = taskInputCheck.querySelectorAll("todo-list__task");
+    const allTasks = taskInputCheck.querySelectorAll(".todo-list__task");
     const allChecked = Array.from(allTasks).every((li) =>
       li.classList.contains("checked")
     );
