@@ -2,14 +2,24 @@
   position: relative;
   padding: 15px;
   width: 481px;
-  height: 35px;
+  height: auto;
+  min-height: 35px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
   font-size: 24px;
   cursor: pointer;
   background-color: #fff;
   border: 1px solid #cfcfcf;
+}
+
+.todo-list__task label {
+  max-width: 400px;
+  box-sizing: border-box;
+  display: block;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 @media (hover: hover) {

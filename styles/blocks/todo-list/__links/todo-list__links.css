@@ -1,9 +1,12 @@
 .todo-list__links {
+  padding: 10px;
   display: flex;
   justify-content: center;
   font-size: 12px;
   text-align: center;
   gap: 10px;
+  background-color: #fff;
+  border: 1px solid #cfcfcf;
 }
 
 @media (max-width: 520px) {

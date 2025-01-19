@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ).length;
     taskCounter.textContent = `${activeTasks} item${
       activeTasks !== 1 ? "s" : ""
-    } left`;
+    } task`;
   }
 
   form.addEventListener("submit", function (event) {
@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleLinksVisibility();
       updateTaskCounter();
       clearTasks();
+      saveTasksToLocalStorage();
     }
   });
 
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const label = document.createElement("label");
     label.textContent = text;
-    label.classList.add("left");
+    label.classList.add("task");
 
     const uniqueId = `task-${Date.now()}`;
     checkbox.id = uniqueId;
@@ -72,7 +73,12 @@ document.addEventListener("DOMContentLoaded", () => {
     li.appendChild(label);
     li.appendChild(span);
 
-    taskInputCheck.appendChild(li);
+    const firstTask = taskInputCheck.firstChild;
+    if (firstTask) {
+      taskInputCheck.insertBefore(li, firstTask);
+    } else {
+      taskInputCheck.appendChild(li);
+    }
 
     label.addEventListener("click", preventDefaultAction);
 
@@ -80,22 +86,26 @@ document.addEventListener("DOMContentLoaded", () => {
       event.stopPropagation();
       editTask(li);
     });
+
+    span.addEventListener("click", function () {
+      li.remove();
+      toggleLinksVisibility();
+      updateTaskCounter();
+      clearTasks();
+      saveTasksToLocalStorage();
+    });
+
+    checkbox.addEventListener("click", function () {
+      li.classList.toggle("checked", checkbox.checked);
+      updateTaskCounter();
+      clearTasks();
+      saveTasksToLocalStorage();
+    });
   }
 
   function preventDefaultAction(event) {
     event.preventDefault();
   }
-
-  taskInputCheck.addEventListener("dblclick", function (event) {
-    const li = event.target.closest(".todo-list__task");
-    if (
-      li &&
-      !event.target.classList.contains("todo-list__checkbox") &&
-      event.target.tagName !== "SPAN"
-    ) {
-      editTask(li);
-    }
-  });
 
   function editTask(li) {
     const label = li.querySelector("label");
@@ -132,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       const label = document.createElement("label");
       label.textContent = newText;
-      label.classList.add("left");
+      label.classList.add("task");
 
       const checkbox = li.querySelector(".todo-list__checkbox");
       const uniqueId = checkbox.id;
@@ -150,37 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTaskCounter();
     toggleLinksVisibility();
     clearTasks();
-  }
-
-  clearBtn.addEventListener("click", function () {
-    const tasks = taskInputCheck.querySelectorAll(".todo-list__task.checked");
-    tasks.forEach((task) => task.remove());
-
-    toggleLinksVisibility();
-    updateTaskCounter();
-    clearTasks();
-  });
-
-  taskInputCheck.addEventListener("click", function (event) {
-    if (event.target.classList.contains("todo-list__checkbox")) {
-      const li = event.target.closest(".todo-list__task");
-      li.classList.toggle("checked", event.target.checked);
-      updateTaskCounter();
-      clearTasks();
-    }
-
-    if (event.target.tagName === "SPAN") {
-      event.target.parentElement.remove();
-      toggleLinksVisibility();
-      updateTaskCounter();
-      clearTasks();
-    }
-  });
-
-  function showTasks() {
-    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    savedTasks.forEach((task) => addTask(task.text, task.isCompleted));
-    clearTasks();
+    saveTasksToLocalStorage();
   }
 
   function filterTasks(filter) {
@@ -202,6 +182,34 @@ document.addEventListener("DOMContentLoaded", () => {
           break;
       }
     });
+  }
+
+  clearBtn.addEventListener("click", function () {
+    const tasks = taskInputCheck.querySelectorAll(".todo-list__task.checked");
+    tasks.forEach((task) => task.remove());
+
+    toggleLinksVisibility();
+    updateTaskCounter();
+    clearTasks();
+    saveTasksToLocalStorage();
+  });
+
+  function saveTasksToLocalStorage() {
+    const tasks = Array.from(
+      taskInputCheck.querySelectorAll(".todo-list__task")
+    );
+    const tasksData = tasks.map((task) => {
+      const text = task.querySelector("label").textContent;
+      const isCompleted = task.classList.contains("checked");
+      return { text, isCompleted };
+    });
+    localStorage.setItem("tasks", JSON.stringify(tasksData));
+  }
+
+  function loadTasksFromLocalStorage() {
+    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    savedTasks.forEach((task) => addTask(task.text, task.isCompleted));
+    clearTasks();
   }
 
   links.forEach((link) => {
@@ -235,9 +243,10 @@ document.addEventListener("DOMContentLoaded", () => {
     arrow.classList.toggle("completed", !allChecked);
     updateTaskCounter();
     clearTasks();
+    saveTasksToLocalStorage();
   });
 
-  showTasks();
+  loadTasksFromLocalStorage();
   toggleLinksVisibility();
   updateTaskCounter();
   setDefaultFilter();

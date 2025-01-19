@@ -1,10 +1,11 @@
 .todo-list__controls {
-  padding: 10px 18px;
+  padding: 10px 25px;
   display: flex;
   justify-content: space-between;
   text-align: center;
   gap: 10px;
   background: #fff;
+  border: 1px solid #cfcfcf;
 }
 
 @media (max-width: 520px) {
