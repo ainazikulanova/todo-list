@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const taskInputCheck = document.querySelector("#inputCheck");
   const taskInput = document.querySelector("#taskInput");
   const form = document.querySelector("#form");
-  const linksContainer = document.querySelector(".links");
+  const linksContainer = document.querySelector(".todo-list__links");
   const controls = document.querySelector(".todo-list__controls");
   const links = document.querySelectorAll(".todo-list__link");
   const taskCounter = document.querySelector("#taskCounter");
@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasTasks =
       taskInputCheck.querySelectorAll(".todo-list__task").length > 0;
     controls.style.display = hasTasks ? "flex" : "none";
+    linksContainer.style.display = hasTasks ? "flex" : "none";
     arrow.classList.toggle("visible", hasTasks);
   }
 
