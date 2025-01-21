@@ -10,7 +10,7 @@
 
 @media (max-width: 520px) {
   .todo-list__controls {
-    padding: 15px 22px;
+    padding: 15px 20px;
     flex-wrap: wrap;
   }
 }
