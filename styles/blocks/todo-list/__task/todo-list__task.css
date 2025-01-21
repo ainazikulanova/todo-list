@@ -45,9 +45,11 @@ ul .todo-list__task span {
   .todo-list__task {
     width: 286px;
     height: 16px;
+    gap: 13px;
   }
 
   ul .todo-list__task span {
+    right: 10px;
     opacity: 1;
   }
 }
