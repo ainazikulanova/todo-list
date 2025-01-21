@@ -1,7 +1,8 @@
 .todo-list__task {
   position: relative;
   padding: 15px;
-  width: 481px;
+  width: 100%;
+  max-width: 481px;
   height: auto;
   min-height: 35px;
   display: flex;
@@ -11,6 +12,7 @@
   cursor: pointer;
   background-color: #fff;
   border: 1px solid #cfcfcf;
+  overflow: hidden;
 }
 
 .todo-list__task label {
@@ -20,11 +22,11 @@
   word-wrap: break-word;
   overflow-wrap: anywhere;
   white-space: normal;
+  line-height: 1.4;
 }
 
 ul .todo-list__task span {
   position: absolute;
-  opacity: 0;
   right: 5px;
   width: 40px;
   height: 40px;
@@ -32,6 +34,7 @@ ul .todo-list__task span {
   line-height: 40px;
   text-align: center;
   color: #a6a6a6;
+  opacity: 0;
   transition: all 0.2s;
 }
 
@@ -43,14 +46,20 @@ ul .todo-list__task span {
 
 @media (max-width: 520px) {
   .todo-list__task {
-    width: 286px;
-    height: 16px;
+    width: 100%;
+    max-width: 286px;
     gap: 13px;
   }
 
   ul .todo-list__task span {
     right: 10px;
     opacity: 1;
+  }
+
+  .todo-list__task label {
+    max-width: 200px;
+    max-height: 4em;
+    overflow-y: auto;
   }
 }
 
