@@ -14,7 +14,8 @@ form {
   position: absolute;
   padding: 15px 15px 15px 40px;
   width: 441px;
-  height: 35px;
+  height: auto;
+  min-height: 35px;
   font-size: 24px;
   transition: box-shadow 0.3s ease;
   cursor: pointer;

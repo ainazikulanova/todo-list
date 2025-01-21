@@ -22,12 +22,6 @@
   white-space: normal;
 }
 
-@media (hover: hover) {
-  .todo-list__task:hover span {
-    opacity: 1;
-  }
-}
-
 ul .todo-list__task span {
   position: absolute;
   opacity: 0;
@@ -41,17 +35,20 @@ ul .todo-list__task span {
   transition: all 0.2s;
 }
 
+@media (hover: hover) {
+  .todo-list__task:hover span {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 520px) {
   .todo-list__task {
     width: 286px;
     height: 16px;
   }
-}
 
-@media (hover: hover) {
-  ul .todo-list__task span:hover {
-    color: #b83f45;
-    border-radius: 20px;
+  ul .todo-list__task span {
+    opacity: 1;
   }
 }
 
