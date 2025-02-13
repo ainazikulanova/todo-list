@@ -1,13 +1,15 @@
 .todo-list__arrow {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  left: 28px;
-  top: 23px;
-  font-size: 20px;
-  color: #949494;
   z-index: 10;
   display: none;
+  padding: 10px;
+  top: 50%;
+  left: 6%;
+  transform: translate(-50%, -55%);
+  font-size: 20px;
+  color: #949494;
+  background: #fff;
+  border: none;
   transition: 0.2s color;
 }
 
@@ -28,7 +30,7 @@
 
 @media (max-width: 520px) {
   .todo-list__arrow {
-    left: 25px;
-    top: 15px;
+    left: 9%;
+    transform: translate(-50%, -50%);
   }
 }

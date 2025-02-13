@@ -1,5 +1,6 @@
-.todo-list__links {
+.todo-list__filters {
   padding: 15px 10px;
+  display: flex;
   justify-content: center;
   font-size: 12px;
   text-align: center;
@@ -9,7 +10,7 @@
 }
 
 @media (max-width: 520px) {
-  .todo-list__links {
+  .todo-list__filters {
     padding-left: 55px;
   }
 }

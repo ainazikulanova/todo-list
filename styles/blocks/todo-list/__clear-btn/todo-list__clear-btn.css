@@ -1,4 +1,6 @@
 .todo-list__clear-btn {
+  background: #fff;
+  border: none;
   cursor: pointer;
 }
 

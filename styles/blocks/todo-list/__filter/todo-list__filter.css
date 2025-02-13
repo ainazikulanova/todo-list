@@ -1,4 +1,4 @@
-.todo-list__link {
+.todo-list__filter {
   padding: 3px 7px;
   border: 1px solid #00000000;
   background-color: #fff;
@@ -7,12 +7,12 @@
 }
 
 @media (hover: hover) {
-  .todo-list__link:hover {
+  .todo-list__filter:hover {
     border: 1px solid #b83f45;
   }
 }
 
-.todo-list__link_active {
+.todo-list__filter_active {
   outline: 1px solid #b83f45;
   box-shadow: 0 0 10px #eea0a0e1;
 }

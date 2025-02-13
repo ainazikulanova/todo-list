@@ -1,6 +1,6 @@
 @import url(./vendor/reset.css);
 
-@import url(./blocks/page/page.css);
+@import url(./blocks/body/body.css);
 @import url(./blocks/title/title.css);
 @import url(./blocks/todo-list/todo-list.css);
 @import url(./blocks/todo-list/__arrow/todo-list__arrow.css);
@@ -8,8 +8,8 @@
 @import url(./blocks/todo-list/__clear-btn/todo-list__clear-btn.css);
 @import url(./blocks/todo-list/__controls/todo-list__controls.css);
 @import url(./blocks/todo-list/__counter/todo-list__counter.css);
-@import url(./blocks/todo-list/__links/todo-list__links.css);
-@import url(./blocks/todo-list/__link/todo-list__link.css);
+@import url(./blocks/todo-list/__filters/todo-list__filters.css);
+@import url(./blocks/todo-list/__filter/todo-list__filter.css);
 @import url(./blocks/todo-list/__checkbox/todo-list__checkbox.css);
 
 @import url(./blocks/todo-list/__task/todo-list__task.css);

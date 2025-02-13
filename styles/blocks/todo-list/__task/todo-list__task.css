@@ -1,6 +1,6 @@
 .todo-list__task {
   position: relative;
-  padding: 15px;
+  padding: 16px 15px;
   width: 100%;
   max-width: 481px;
   height: auto;

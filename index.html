@@ -11,19 +11,21 @@
       name="keywords"
       content="тудушка, список дел, планирование, управление задачами, организация времени, продуктивность"
     />
-    <link rel="stylesheet" href="./styles/index.css" />
     <link rel="stylesheet" href="./styles/vendor/reset.css" />
+    <link rel="stylesheet" href="./styles/index.css" />
     <link rel="shortcut icon" href="./images/favicon.png" type="image/x-icon" />
     <title>Todo-list</title>
   </head>
-  <body class="page">
-    <section class="todo-list">
+  <body class="body">
+    <div class="todo-list">
       <header>
         <h1 class="title">todos</h1>
       </header>
       <main class="todo-list__content">
         <form class="todo-list__form" id="form">
-          <a class="todo-list__arrow" id="arrow">▼</a>
+          <div class="todo-list__arrow-container">
+            <button class="todo-list__arrow" id="arrow" type="button">▼</button>
+          </div>
           <input
             id="taskInput"
             class="todo-list__input"
@@ -31,19 +33,21 @@
             placeholder="What needs to be done?"
             required
           />
-          <ul class="todo-list__links">
-            <li><a class="todo-list__link">All</a></li>
-            <li><a class="todo-list__link">Active</a></li>
-            <li><a class="todo-list__link">Completed</a></li>
-          </ul>
-          <ul class="todo-list__tasks" id="inputCheck"></ul>
-          <section class="todo-list__controls">
-            <span id="taskCounter" class="todo-list__counter"></span>
-            <a id="clearBtn" class="todo-list__clear-btn">Clear completed</a>
-          </section>
         </form>
+        <ul class="todo-list__filters">
+          <li><button class="todo-list__filter">All</button></li>
+          <li><button class="todo-list__filter">Active</button></li>
+          <li><button class="todo-list__filter">Completed</button></li>
+        </ul>
+        <ul class="todo-list__tasks" id="inputCheck"></ul>
+        <div class="todo-list__controls">
+          <span id="taskCounter" class="todo-list__counter"></span>
+          <button id="clearBtn" class="todo-list__clear-btn">
+            Clear completed
+          </button>
+        </div>
       </main>
-    </section>
+    </div>
     <script src="./scripts/index.js"></script>
   </body>
 </html>

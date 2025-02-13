@@ -1,254 +1,227 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const taskInputCheck = document.querySelector("#inputCheck");
-  const taskInput = document.querySelector("#taskInput");
-  const form = document.querySelector("#form");
-  const linksContainer = document.querySelector(".todo-list__links");
-  const controls = document.querySelector(".todo-list__controls");
-  const links = document.querySelectorAll(".todo-list__link");
-  const taskCounter = document.querySelector("#taskCounter");
-  const arrow = document.querySelector("#arrow");
-  const clearBtn = document.querySelector("#clearBtn");
+// №1 Объявляем переменные и константы
+const app = document.querySelector(".todo-list");
+const taskInputCheck = app.querySelector(".todo-list__tasks");
+const taskInput = document.querySelector("#taskInput");
+const form = app.querySelector("#form");
+const filtersContainer = app.querySelector(".todo-list__filters");
+const controlsContainer = app.querySelector(".todo-list__controls");
+const taskCounter = app.querySelector("#taskCounter");
+const arrow = app.querySelector("#arrow");
+const clearBtn = app.querySelector("#clearBtn");
+const filterButtons = app.querySelectorAll(".todo-list__filter");
 
-  function clearTasks() {
-    const checkTasks =
-      taskInputCheck.querySelectorAll(".todo-list__task.checked").length > 0;
-    clearBtn.style.opacity = checkTasks ? "1" : "0";
-    clearBtn.style.pointerEvents = checkTasks ? "auto" : "none";
-  }
+// №2 Объявляем функции
+function clearTasks() {
+  const hasCheckedTasks = taskInputCheck.querySelector(".checked") !== null;
+  clearBtn.style.opacity = hasCheckedTasks ? "1" : "0";
+  clearBtn.style.pointerEvents = hasCheckedTasks ? "auto" : "none";
+}
 
-  function toggleLinksVisibility() {
-    const hasTasks =
-      taskInputCheck.querySelectorAll(".todo-list__task").length > 0;
-    controls.style.display = hasTasks ? "flex" : "none";
-    linksContainer.style.display = hasTasks ? "flex" : "none";
-    arrow.classList.toggle("visible", hasTasks);
-  }
+function toggleLinksVisibility() {
+  const hasTask = taskInputCheck.querySelector(".todo-list__task") !== null;
+  controlsContainer.style.display = hasTask ? "flex" : "none";
+  filtersContainer.style.display = hasTask ? "flex" : "none";
+  arrow.classList.toggle("visible", hasTask);
+}
 
-  function updateTaskCounter() {
-    const activeTasks = taskInputCheck.querySelectorAll(
-      ".todo-list__task:not(.checked)"
-    ).length;
-    taskCounter.textContent = `${activeTasks} item${
-      activeTasks !== 1 ? "s" : ""
-    } task`;
-  }
+function updateTaskCounter() {
+  const activeTasks = taskInputCheck.querySelectorAll(
+    ".todo-list__task:not(.checked)"
+  ).length;
+  taskCounter.textContent = `${activeTasks} item${
+    activeTasks !== 1 ? "s" : ""
+  } left`;
+}
 
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
+function preventDefaultAction(event) {
+  event.preventDefault();
+}
 
-    if (taskInput.value.trim() !== "") {
-      addTask(taskInput.value, false);
-      taskInput.value = "";
-      toggleLinksVisibility();
-      updateTaskCounter();
-      clearTasks();
-      saveTasksToLocalStorage();
-    }
-  });
+function editTask(li) {
+  const label = li.querySelector("label");
+  if (!label) return;
 
-  function addTask(text, isCompleted) {
-    const li = document.createElement("li");
-    li.classList.add("todo-list__task");
+  const currentText = label.textContent;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = currentText;
+  input.classList.add("edit-input");
 
-    if (isCompleted) {
-      li.classList.add("checked");
-    }
+  li.replaceChild(input, label);
+  input.focus();
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.classList.add("todo-list__checkbox");
-    checkbox.checked = isCompleted;
-
-    const label = document.createElement("label");
-    label.textContent = text;
-    label.classList.add("task");
-
-    const uniqueId = `task-${Date.now()}`;
-    checkbox.id = uniqueId;
-    label.setAttribute("for", uniqueId);
-
-    const span = document.createElement("span");
-    span.innerHTML = "\u00d7";
-
-    li.appendChild(checkbox);
-    li.appendChild(label);
-    li.appendChild(span);
-
-    const firstTask = taskInputCheck.firstChild;
-    if (firstTask) {
-      taskInputCheck.insertBefore(li, firstTask);
-    } else {
-      taskInputCheck.appendChild(li);
-    }
-
-    label.addEventListener("click", preventDefaultAction);
-
-    label.addEventListener("dblclick", function (event) {
-      event.stopPropagation();
-      editTask(li);
-    });
-
-    span.addEventListener("click", function () {
-      li.remove();
-      toggleLinksVisibility();
-      updateTaskCounter();
-      clearTasks();
-      saveTasksToLocalStorage();
-    });
-
-    checkbox.addEventListener("click", function () {
-      li.classList.toggle("checked", checkbox.checked);
-      updateTaskCounter();
-      clearTasks();
-      saveTasksToLocalStorage();
-    });
-  }
-
-  function preventDefaultAction(event) {
-    event.preventDefault();
-  }
-
-  function editTask(li) {
-    const label = li.querySelector("label");
-    if (!label) return;
-
-    const currentText = label.textContent;
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = currentText;
-    input.classList.add("edit-input");
-
-    li.replaceChild(input, label);
-    input.focus();
-
-    input.addEventListener("blur", function () {
-      saveEditedTask(input, li);
-    });
-
-    input.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        saveEditedTask(input, li);
-      } else if (event.key === "Escape") {
-        li.replaceChild(label, input);
-      }
-    });
-  }
-
-  function saveEditedTask(input, li) {
-    const newText = input.value.trim();
-
-    if (newText === "") {
-      li.remove();
-    } else {
-      const label = document.createElement("label");
-      label.textContent = newText;
-      label.classList.add("task");
-
-      const checkbox = li.querySelector(".todo-list__checkbox");
-      const uniqueId = checkbox.id;
-      label.setAttribute("for", uniqueId);
-
+  input.addEventListener("blur", () => saveEditedTask(input, li));
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") saveEditedTask(input, li);
+    if (event.key === "Escape") {
+      input.value = currentText;
       li.replaceChild(label, input);
-
-      label.addEventListener("click", preventDefaultAction);
-
-      label.addEventListener("dblclick", function () {
-        editTask(li);
-      });
     }
+  });
+}
 
-    updateTaskCounter();
+function saveEditedTask(input, li) {
+  const newText = input.value.trim();
+  if (!newText) {
+    li.remove();
+  } else {
+    const label = document.createElement("label");
+    label.textContent = newText;
+    label.classList.add("task");
+    const checkbox = li.querySelector(".todo-list__checkbox");
+    label.setAttribute("for", checkbox.id);
+
+    li.replaceChild(label, input);
+    label.addEventListener("click", preventDefaultAction);
+    label.addEventListener("dblclick", () => editTask(li));
+  }
+  updateTaskCounter();
+  toggleLinksVisibility();
+  clearTasks();
+  saveTasksToLocalStorage();
+}
+
+function filterTasks(filter) {
+  document.querySelectorAll(".todo-list__task").forEach((task) => {
+    switch (filter) {
+      case "All":
+        task.style.display = "flex";
+        break;
+      case "Active":
+        task.style.display = task.classList.contains("checked")
+          ? "none"
+          : "flex";
+        break;
+      case "Completed":
+        task.style.display = task.classList.contains("checked")
+          ? "flex"
+          : "none";
+        break;
+    }
+  });
+}
+
+function saveTasksToLocalStorage() {
+  const tasks = [...taskInputCheck.children].map((task) => ({
+    text: task.querySelector("label").textContent,
+    isCompleted: task.classList.contains("checked"),
+  }));
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function loadTasksFromLocalStorage() {
+  const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  savedTasks.forEach((task) => addTask(task.text, task.isCompleted));
+  clearTasks();
+}
+
+// Функция добавления задачи
+function addTask(text, isCompleted) {
+  const li = document.createElement("li");
+  li.classList.add("todo-list__task");
+  if (isCompleted) li.classList.add("checked");
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.classList.add("todo-list__checkbox");
+  checkbox.checked = isCompleted;
+
+  const label = document.createElement("label");
+  label.textContent = text;
+  label.classList.add("task");
+
+  const uniqueId = `task-${Date.now()}`;
+  checkbox.id = uniqueId;
+  label.setAttribute("for", uniqueId);
+
+  const span = document.createElement("span");
+  span.innerHTML = "\u00d7";
+
+  li.append(checkbox, label, span);
+  taskInputCheck.insertBefore(li, taskInputCheck.firstChild);
+
+  label.addEventListener("click", preventDefaultAction);
+  li.addEventListener("dblclick", () => editTask(li));
+  span.addEventListener("click", () => {
+    li.remove();
     toggleLinksVisibility();
+    updateTaskCounter();
     clearTasks();
     saveTasksToLocalStorage();
-  }
+  });
 
-  function filterTasks(filter) {
-    const tasks = taskInputCheck.querySelectorAll(".todo-list__task");
-    tasks.forEach((task) => {
-      switch (filter) {
-        case "all":
-          task.style.display = "flex";
-          break;
-        case "active":
-          task.style.display = task.classList.contains("checked")
-            ? "none"
-            : "flex";
-          break;
-        case "completed":
-          task.style.display = task.classList.contains("checked")
-            ? "flex"
-            : "none";
-          break;
-      }
-    });
-  }
+  checkbox.addEventListener("change", () => {
+    li.classList.toggle("checked", checkbox.checked);
+    updateTaskCounter();
+    clearTasks();
+    saveTasksToLocalStorage();
+  });
+}
 
-  clearBtn.addEventListener("click", function () {
-    const tasks = taskInputCheck.querySelectorAll(".todo-list__task.checked");
-    tasks.forEach((task) => task.remove());
-
+// №3 Добавляем слушатели событий
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (taskInput.value.trim()) {
+    addTask(taskInput.value, false);
+    taskInput.value = "";
     toggleLinksVisibility();
     updateTaskCounter();
     clearTasks();
     saveTasksToLocalStorage();
-  });
+  }
+});
 
-  function saveTasksToLocalStorage() {
-    const tasks = Array.from(
-      taskInputCheck.querySelectorAll(".todo-list__task")
+// Фильтрация задач
+filterButtons.forEach((button) => {
+  button.addEventListener("click", function () {
+    filterButtons.forEach((btn) =>
+      btn.classList.remove("todo-list__filter_active")
     );
-    const tasksData = tasks.map((task) => {
-      const text = task.querySelector("label").textContent;
-      const isCompleted = task.classList.contains("checked");
-      return { text, isCompleted };
-    });
-    localStorage.setItem("tasks", JSON.stringify(tasksData));
-  }
-
-  function loadTasksFromLocalStorage() {
-    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    savedTasks.forEach((task) => addTask(task.text, task.isCompleted));
-    clearTasks();
-  }
-
-  links.forEach((link) => {
-    link.addEventListener("click", function () {
-      links.forEach((a) => a.classList.remove("todo-list__link_active"));
-      this.classList.add("todo-list__link_active");
-
-      const filter = this.textContent.toLowerCase();
-      filterTasks(filter);
-    });
+    this.classList.add("todo-list__filter_active");
+    filterTasks(this.textContent.trim());
   });
+});
 
-  function setDefaultFilter() {
-    const defaultLink = document.querySelector(".link:first-child");
-    defaultLink.classList.add("todo-list__link_active");
-    filterTasks("all");
-  }
-
-  arrow.addEventListener("click", function () {
-    const allTasks = taskInputCheck.querySelectorAll(".todo-list__task");
-    const allChecked = Array.from(allTasks).every((li) =>
-      li.classList.contains("checked")
-    );
-
-    allTasks.forEach((li) => {
-      const checkbox = li.querySelector(".todo-list__checkbox");
-      li.classList.toggle("checked", !allChecked);
-      checkbox.checked = !allChecked;
-    });
-
-    arrow.classList.toggle("completed", !allChecked);
-    updateTaskCounter();
-    clearTasks();
-    saveTasksToLocalStorage();
-  });
-
-  loadTasksFromLocalStorage();
+// Очистка выполненных задач
+clearBtn.addEventListener("click", () => {
+  document
+    .querySelectorAll(".todo-list__task.checked")
+    .forEach((task) => task.remove());
   toggleLinksVisibility();
   updateTaskCounter();
-  setDefaultFilter();
+  clearTasks();
+  saveTasksToLocalStorage();
 });
+
+// Кнопка выбора всех задач
+arrow.addEventListener("click", () => {
+  const allTasks = document.querySelectorAll(".todo-list__task");
+  const allChecked = [...allTasks].every((task) =>
+    task.classList.contains("checked")
+  );
+
+  allTasks.forEach((task) => {
+    const checkbox = task.querySelector(".todo-list__checkbox");
+    task.classList.toggle("checked", !allChecked);
+    checkbox.checked = !allChecked;
+  });
+
+  arrow.classList.toggle("completed", !allChecked);
+  updateTaskCounter();
+  clearTasks();
+  saveTasksToLocalStorage();
+
+  const activeFilterElement = document.querySelector(
+    ".todo-list__filter_active"
+  );
+  const activeFilter = activeFilterElement
+    ? activeFilterElement.textContent.trim()
+    : "All";
+  filterTasks(activeFilter);
+});
+
+// Загружаем сохраненные задачи при старте
+loadTasksFromLocalStorage();
+toggleLinksVisibility();
+updateTaskCounter();
+filterTasks("All");
