@@ -1,8 +1,15 @@
 .todo-list__clear-btn {
+  font-size: 16px;
   background: #fff;
   color: #000;
   border: none;
   cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .todo-list__clear-btn {
+    font-size: 14px;
+  }
 }
 
 @media (hover: hover) {
