@@ -50,7 +50,7 @@ function editTask(li) {
   li.replaceChild(input, label);
   input.focus();
 
-  input.addEventListener("blur", () => saveEditedTask(input, li));
+  input.onblur = () => saveEditedTask(input, li);
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       saveEditedTask(input, li);
@@ -72,7 +72,9 @@ function saveEditedTask(input, li) {
     const checkbox = li.querySelector(".todo-list__checkbox");
     label.setAttribute("for", checkbox.id);
 
+    input.onblur = undefined;
     li.replaceChild(label, input);
+ 
     label.addEventListener("click", preventDefaultAction);
     label.addEventListener("dblclick", () => editTask(li));
   }

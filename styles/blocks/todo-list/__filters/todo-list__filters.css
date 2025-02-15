@@ -8,9 +8,3 @@
   background-color: #fff;
   border: 1px solid #cfcfcf;
 }
-
-@media (max-width: 520px) {
-  .todo-list__filters {
-    padding-left: 55px;
-  }
-}
