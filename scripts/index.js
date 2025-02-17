@@ -141,6 +141,7 @@ function addTask(text, isCompleted) {
 
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
+  checkbox.name = "task";
   checkbox.classList.add("todo-list__checkbox");
   checkbox.checked = isCompleted;
 
@@ -148,7 +149,7 @@ function addTask(text, isCompleted) {
   label.textContent = text;
   label.classList.add("task");
 
-  const uniqueId = `task-${Date.now()}`;
+  const uniqueId = `task-${crypto.randomUUID()}`;
   checkbox.id = uniqueId;
   label.setAttribute("for", uniqueId);
 
