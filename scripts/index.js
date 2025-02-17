@@ -50,14 +50,26 @@ function editTask(li) {
   li.replaceChild(input, label);
   input.focus();
 
-  input.onblur = () => saveEditedTask(input, li);
-  input.addEventListener("keydown", (event) => {
+  function cancelEdit() {
+    input.removeEventListener("blur", saveEdit);
+    li.replaceChild(label, input);
+  }
+
+  function saveEdit() {
+    input.removeEventListener("blur", saveEdit);
+    saveEditedTask(input, li);
+  }
+
+  function handleKeydown(event) {
     if (event.key === "Enter") {
-      saveEditedTask(input, li);
+      saveEdit();
     } else if (event.key === "Escape") {
-      li.replaceChild(label, input);
+      cancelEdit();
     }
-  });
+  }
+
+  input.addEventListener("blur", saveEdit);
+  input.addEventListener("keydown", handleKeydown);
 }
 
 function saveEditedTask(input, li) {
@@ -74,7 +86,7 @@ function saveEditedTask(input, li) {
 
     input.onblur = undefined;
     li.replaceChild(label, input);
- 
+
     label.addEventListener("click", preventDefaultAction);
     label.addEventListener("dblclick", () => editTask(li));
   }
