@@ -11,20 +11,20 @@ const clearBtn = app.querySelector("#clearBtn");
 const filterButtons = app.querySelectorAll(".todo-list__filter");
 
 //№2 Объявляем функции
-function clearTasks() {
+function handleClearBtnVisibility() {
   const hasCheckedTasks = taskInputCheck.querySelector(".checked") !== null;
   clearBtn.style.opacity = hasCheckedTasks ? "1" : "0";
   clearBtn.style.pointerEvents = hasCheckedTasks ? "auto" : "none";
 }
 
-function toggleLinksVisibility() {
+function updateTaskVisibility() {
   const hasTask = taskInputCheck.querySelector(".todo-list__task") !== null;
   controlsContainer.style.display = hasTask ? "flex" : "none";
   filtersContainer.style.display = hasTask ? "flex" : "none";
   arrow.classList.toggle("visible", hasTask);
 }
 
-function updateTaskCounter() {
+function refreshTaskCounter() {
   const activeTasks = taskInputCheck.querySelectorAll(
     ".todo-list__task:not(.checked)"
   ).length;
@@ -90,13 +90,13 @@ function saveEditedTask(input, li) {
     label.addEventListener("click", preventDefaultAction);
     label.addEventListener("dblclick", () => editTask(li));
   }
-  updateTaskCounter();
-  toggleLinksVisibility();
-  clearTasks();
+  refreshTaskCounter();
+  updateTaskVisibility();
+  handleClearBtnVisibility();
   saveTasksToLocalStorage();
 }
 
-function filterTasks(filter) {
+function applyTaskFilter(filter) {
   document.querySelectorAll(".todo-list__task").forEach((task) => {
     switch (filter) {
       case "All":
@@ -127,10 +127,10 @@ function saveTasksToLocalStorage() {
   localStorage.setItem("tasks", JSON.stringify(tasksData));
 }
 
-function loadTasksFromLocalStorage() {
+function loadStoredTasks() {
   const tasksSave = JSON.parse(localStorage.getItem("tasks")) || [];
   tasksSave.forEach((task) => addTask(task.text, task.isCompleted));
-  clearTasks();
+  handleClearBtnVisibility();
 }
 
 //Функция добавления задачи
@@ -163,16 +163,16 @@ function addTask(text, isCompleted) {
   li.addEventListener("dblclick", () => editTask(li));
   span.addEventListener("click", () => {
     li.remove();
-    toggleLinksVisibility();
-    updateTaskCounter();
-    clearTasks();
+    updateTaskVisibility();
+    refreshTaskCounter();
+    handleClearBtnVisibility();
     saveTasksToLocalStorage();
   });
 
   checkbox.addEventListener("change", () => {
     li.classList.toggle("checked", checkbox.checked);
-    updateTaskCounter();
-    clearTasks();
+    refreshTaskCounter();
+    handleClearBtnVisibility();
     saveTasksToLocalStorage();
 
     const activeFilterElement = document.querySelector(
@@ -181,7 +181,7 @@ function addTask(text, isCompleted) {
     const activeFilter = activeFilterElement
       ? activeFilterElement.textContent.trim()
       : "All";
-    filterTasks(activeFilter);
+    applyTaskFilter(activeFilter);
   });
 }
 
@@ -226,9 +226,9 @@ form.addEventListener("submit", (event) => {
   if (taskInput.value.trim()) {
     addTask(taskInput.value, false);
     taskInput.value = "";
-    toggleLinksVisibility();
-    updateTaskCounter();
-    clearTasks();
+    updateTaskVisibility();
+    refreshTaskCounter();
+    handleClearBtnVisibility();
     saveTasksToLocalStorage();
   }
 });
@@ -240,9 +240,9 @@ document.addEventListener("click", (event) => {
     if (taskInput.value.trim()) {
       addTask(taskInput.value, false);
       taskInput.value = "";
-      toggleLinksVisibility();
-      updateTaskCounter();
-      clearTasks();
+      updateTaskVisibility();
+      refreshTaskCounter();
+      handleClearBtnVisibility();
       saveTasksToLocalStorage();
     }
   }
@@ -255,7 +255,7 @@ filterButtons.forEach((button) => {
       btn.classList.remove("todo-list__filter_active")
     );
     this.classList.add("todo-list__filter_active");
-    filterTasks(this.textContent.trim());
+    applyTaskFilter(this.textContent.trim());
   });
 });
 
@@ -264,9 +264,9 @@ clearBtn.addEventListener("click", () => {
   document
     .querySelectorAll(".todo-list__task.checked")
     .forEach((task) => task.remove());
-  toggleLinksVisibility();
-  updateTaskCounter();
-  clearTasks();
+  updateTaskVisibility();
+  refreshTaskCounter();
+  handleClearBtnVisibility();
   saveTasksToLocalStorage();
 });
 
@@ -284,8 +284,8 @@ arrow.addEventListener("click", () => {
   });
 
   arrow.classList.toggle("completed", !allChecked);
-  updateTaskCounter();
-  clearTasks();
+  refreshTaskCounter();
+  handleClearBtnVisibility();
   saveTasksToLocalStorage();
 
   const activeFilterElement = document.querySelector(
@@ -294,11 +294,11 @@ arrow.addEventListener("click", () => {
   const activeFilter = activeFilterElement
     ? activeFilterElement.textContent.trim()
     : "All";
-  filterTasks(activeFilter);
+  applyTaskFilter(activeFilter);
 });
 
 // Загружаем сохраненные задачи при старте
-loadTasksFromLocalStorage();
-toggleLinksVisibility();
-updateTaskCounter();
-filterTasks("All");
+loadStoredTasks();
+updateTaskVisibility();
+refreshTaskCounter();
+applyTaskFilter("All");
