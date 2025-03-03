@@ -250,17 +250,26 @@ form.addEventListener("submit", (event) => {
 });
 
 document.addEventListener("click", (event) => {
-  const isClickInsideForm = form.contains(event.target);
+  const excludedContainers = [
+    form,
+    taskInputCheck,
+    filtersContainer,
+    controlsContainer,
+  ];
 
-  if (!isClickInsideForm) {
-    if (taskInput.value.trim()) {
-      addTask(taskInput.value, false);
-      taskInput.value = "";
-      updateTaskVisibility();
-      refreshTaskCounter();
-      handleClearBtnVisibility();
-      saveTasksToLocalStorage();
-    }
+  const isClickInsideExcluded = excludedContainers.some((container) =>
+    container.contains(event.target)
+  );
+
+  if (isClickInsideExcluded) return;
+
+  if (taskInput.value.trim()) {
+    addTask(taskInput.value, false);
+    taskInput.value = "";
+    updateTaskVisibility();
+    refreshTaskCounter();
+    handleClearBtnVisibility();
+    saveTasksToLocalStorage();
   }
 });
 
