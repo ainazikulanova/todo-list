@@ -51,13 +51,23 @@ function editTask(li) {
   input.focus();
 
   function cancelEdit() {
-    input.removeEventListener("blur", saveEdit);
     li.replaceChild(label, input);
+    document.removeEventListener("click", handleClickOutside);
+    input.removeEventListener("keydown", handleKeydown);
   }
 
   function saveEdit() {
-    input.removeEventListener("blur", saveEdit);
-    saveEditedTask(input, li);
+    const newText = input.value.trim();
+    if (newText) {
+      label.textContent = newText;
+    }
+    li.replaceChild(label, input);
+    refreshTaskCounter();
+    updateTaskVisibility();
+    handleClearBtnVisibility();
+    saveTasksToLocalStorage();
+    document.removeEventListener("click", handleClickOutside);
+    input.removeEventListener("keydown", handleKeydown);
   }
 
   function handleKeydown(event) {
@@ -68,8 +78,14 @@ function editTask(li) {
     }
   }
 
-  input.addEventListener("blur", saveEdit);
+  function handleClickOutside(event) {
+    if (!li.contains(event.target)) {
+      cancelEdit();
+    }
+  }
+
   input.addEventListener("keydown", handleKeydown);
+  document.addEventListener("click", handleClickOutside);
 }
 
 function saveEditedTask(input, li) {
@@ -248,14 +264,17 @@ document.addEventListener("click", (event) => {
   }
 });
 
-// Фильтрация задач
+// Фильтрация задач с сохранением фильтра
 filterButtons.forEach((button) => {
   button.addEventListener("click", function () {
     filterButtons.forEach((btn) =>
       btn.classList.remove("todo-list__filter_active")
     );
+
     this.classList.add("todo-list__filter_active");
-    applyTaskFilter(this.textContent.trim());
+    const selectedFilter = this.textContent.trim();
+    applyTaskFilter(selectedFilter);
+    localStorage.setItem("selectedFilter", selectedFilter);
   });
 });
 
@@ -297,8 +316,22 @@ arrow.addEventListener("click", () => {
   applyTaskFilter(activeFilter);
 });
 
+function restoreSelectedFilter() {
+  const savedFilter = localStorage.getItem("selectedFilter") || "All";
+
+  filterButtons.forEach((button) => {
+    if (button.textContent.trim() === savedFilter) {
+      button.classList.add("todo-list__filter_active");
+    } else {
+      button.classList.remove("todo-list__filter_active");
+    }
+  });
+
+  applyTaskFilter(savedFilter);
+}
+
 // Загружаем сохраненные задачи при старте
 loadStoredTasks();
 updateTaskVisibility();
 refreshTaskCounter();
-applyTaskFilter("All");
+restoreSelectedFilter();
