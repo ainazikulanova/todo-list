@@ -1,14 +1,18 @@
 //№1 Объявляем переменные и константы
 const app = document.querySelector(".todo-list");
-const taskInputCheck = app.querySelector(".todo-list__tasks");
-const taskInput = document.querySelector("#taskInput");
+
 const form = app.querySelector("#form");
+const arrow = form.querySelector("#arrow");
+const taskInput = form.querySelector("#taskInput");
+
 const filtersContainer = app.querySelector(".todo-list__filters");
+const filterButtons = filtersContainer.querySelectorAll(".todo-list__filter");
+
+const taskInputCheck = app.querySelector(".todo-list__tasks");
+
 const controlsContainer = app.querySelector(".todo-list__controls");
-const taskCounter = app.querySelector("#taskCounter");
-const arrow = app.querySelector("#arrow");
-const clearBtn = app.querySelector("#clearBtn");
-const filterButtons = app.querySelectorAll(".todo-list__filter");
+const taskCounter = controlsContainer.querySelector("#taskCounter");
+const clearBtn = controlsContainer.querySelector("#clearBtn");
 
 //№2 Объявляем функции
 function handleClearBtnVisibility() {
@@ -113,7 +117,7 @@ function saveEditedTask(input, li) {
 }
 
 function applyTaskFilter(filter) {
-  document.querySelectorAll(".todo-list__task").forEach((task) => {
+  taskInputCheck.querySelectorAll(".todo-list__task").forEach((task) => {
     switch (filter) {
       case "All":
         task.style.display = "flex";
@@ -191,7 +195,7 @@ function addTask(text, isCompleted) {
     handleClearBtnVisibility();
     saveTasksToLocalStorage();
 
-    const activeFilterElement = document.querySelector(
+    const activeFilterElement = filtersContainer.querySelector(
       ".todo-list__filter_active"
     );
     const activeFilter = activeFilterElement
@@ -300,7 +304,7 @@ clearBtn.addEventListener("click", () => {
 
 // Кнопка выбора всех задач
 arrow.addEventListener("click", () => {
-  const allTasks = document.querySelectorAll(".todo-list__task");
+  const allTasks = taskInputCheck.querySelectorAll(".todo-list__task");
   const allChecked = [...allTasks].every((task) =>
     task.classList.contains("checked")
   );
@@ -316,7 +320,7 @@ arrow.addEventListener("click", () => {
   handleClearBtnVisibility();
   saveTasksToLocalStorage();
 
-  const activeFilterElement = document.querySelector(
+  const activeFilterElement = filtersContainer.querySelector(
     ".todo-list__filter_active"
   );
   const activeFilter = activeFilterElement
