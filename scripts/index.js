@@ -22,7 +22,7 @@ function handleClearBtnVisibility() {
 }
 
 function updateTaskVisibility() {
-  const hasTask = taskInputCheck.querySelector(".todo-list__task") !== null;
+  const hasTask = taskInputCheck.children.length > 0;
   controlsContainer.style.display = hasTask ? "flex" : "none";
   filtersContainer.style.display = hasTask ? "flex" : "none";
   arrow.classList.toggle("visible", hasTask);
@@ -67,7 +67,6 @@ function editTask(li) {
     }
     li.replaceChild(label, input);
     refreshTaskCounter();
-    updateTaskVisibility();
     handleClearBtnVisibility();
     saveTasksToLocalStorage();
     document.removeEventListener("click", handleClickOutside);
@@ -117,22 +116,16 @@ function saveEditedTask(input, li) {
 }
 
 function applyTaskFilter(filter) {
-  taskInputCheck.querySelectorAll(".todo-list__task").forEach((task) => {
-    switch (filter) {
-      case "All":
-        task.style.display = "flex";
-        break;
-      case "Active":
-        task.style.display = task.classList.contains("checked")
-          ? "none"
-          : "flex";
-        break;
-      case "Completed":
-        task.style.display = task.classList.contains("checked")
-          ? "flex"
-          : "none";
-        break;
-    }
+  const tasks = [...taskInputCheck.querySelectorAll(".todo-list__task")];
+
+  tasks.forEach((task) => {
+    const isChecked = task.classList.contains("checked");
+    task.style.display =
+      filter === "All" ||
+      (filter === "Active" && !isChecked) ||
+      (filter === "Completed" && isChecked)
+        ? "flex"
+        : "none";
   });
 }
 
@@ -194,14 +187,6 @@ function addTask(text, isCompleted) {
     refreshTaskCounter();
     handleClearBtnVisibility();
     saveTasksToLocalStorage();
-
-    const activeFilterElement = filtersContainer.querySelector(
-      ".todo-list__filter_active"
-    );
-    const activeFilter = activeFilterElement
-      ? activeFilterElement.textContent.trim()
-      : "All";
-    applyTaskFilter(activeFilter);
   });
 }
 
@@ -293,9 +278,10 @@ filterButtons.forEach((button) => {
 
 // Очистка выполненных задач
 clearBtn.addEventListener("click", () => {
-  document
-    .querySelectorAll(".todo-list__task.checked")
-    .forEach((task) => task.remove());
+  [...taskInputCheck.children]
+    .filter((task) => task.classList.contains("checked"))
+    .map((task) => task.remove());
+
   updateTaskVisibility();
   refreshTaskCounter();
   handleClearBtnVisibility();
