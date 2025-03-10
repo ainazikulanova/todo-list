@@ -9,35 +9,3 @@
 form {
   position: relative;
 }
-
-.edit-input {
-  position: absolute;
-  padding: 15px 15px 15px 40px;
-  width: 441px;
-  height: auto;
-  min-height: 35px;
-  font-size: 24px;
-  transition: box-shadow 0.3s ease;
-  cursor: pointer;
-  outline: 1px solid #eea0a0e1;
-  border: 1px solid #eea0a0e1;
-  box-shadow: 0 0 10px #eea0a0e1;
-}
-
-form label {
-  cursor: pointer;
-}
-
-@media (max-width: 520px) {
-  form label {
-    font-size: 16px;
-  }
-
-  .edit-input {
-    position: absolute;
-    padding: 15px;
-    width: 268px;
-    height: 16px;
-    font-size: 16px;
-  }
-}

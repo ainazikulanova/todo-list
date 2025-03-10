@@ -39,7 +39,18 @@
           <li><button class="todo-list__filter">Active</button></li>
           <li><button class="todo-list__filter">Completed</button></li>
         </ul>
-        <ul class="todo-list__tasks" id="inputCheck"></ul>
+        <ul class="todo-list__tasks" id="inputCheck">
+          <template id="todo-list__item">
+            <li class="todo-list__task">
+              <input type="checkbox" class="todo-list__checkbox" />
+              <label class="todo-list__text"></label>
+              <button class="todo-list__delete-btn">×</button>
+            </li>
+          </template>
+        </ul>
+        <template id="todo-list__edit-input-template">
+          <input type="text" class="todo-list__edit-input" />
+        </template>
         <div class="todo-list__controls">
           <span id="taskCounter" class="todo-list__counter"></span>
           <button id="clearBtn" class="todo-list__clear-btn">

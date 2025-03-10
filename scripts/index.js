@@ -14,6 +14,18 @@ const controlsContainer = app.querySelector(".todo-list__controls");
 const taskCounter = controlsContainer.querySelector("#taskCounter");
 const clearBtn = controlsContainer.querySelector("#clearBtn");
 
+const taskTemplate = app
+  .querySelector("#todo-list__item")
+  .content.querySelector(".todo-list__task");
+
+const editInputTemplate = app
+  .querySelector("#todo-list__edit-input-template")
+  .content.querySelector(".todo-list__edit-input");
+
+// Глобальные переменные
+let keydownHandler;
+let clickOutsideHandler;
+
 //№2 Объявляем функции
 function handleClearBtnVisibility() {
   const hasCheckedTasks = taskInputCheck.querySelector(".checked") !== null;
@@ -37,78 +49,75 @@ function refreshTaskCounter() {
   } left`;
 }
 
-function preventDefaultAction(event) {
-  event.preventDefault();
+function replaceLabelWithInput(taskItem, taskText, editInput) {
+  taskItem.replaceChild(editInput, taskText);
+  editInput.focus();
 }
 
-function editTask(li) {
-  const label = li.querySelector("label");
-  if (!label) return;
+function editTask(taskItem) {
+  const taskText = taskItem.querySelector(".todo-list__text");
+  if (!taskText) return;
 
-  const currentText = label.textContent;
-  const input = document.createElement("input");
-  input.type = "text";
-  input.value = currentText;
-  input.classList.add("edit-input");
-
-  li.replaceChild(input, label);
-  input.focus();
-
-  function cancelEdit() {
-    li.replaceChild(label, input);
-    document.removeEventListener("click", handleClickOutside);
-    input.removeEventListener("keydown", handleKeydown);
-  }
-
-  function saveEdit() {
-    const newText = input.value.trim();
-    if (newText) {
-      label.textContent = newText;
-    }
-    li.replaceChild(label, input);
-    refreshTaskCounter();
-    handleClearBtnVisibility();
-    saveTasksToLocalStorage();
-    document.removeEventListener("click", handleClickOutside);
-    input.removeEventListener("keydown", handleKeydown);
-  }
-
-  function handleKeydown(event) {
-    if (event.key === "Enter") {
-      saveEdit();
-    } else if (event.key === "Escape") {
-      cancelEdit();
-    }
-  }
-
-  function handleClickOutside(event) {
-    if (!li.contains(event.target)) {
-      cancelEdit();
-    }
-  }
-
-  input.addEventListener("keydown", handleKeydown);
-  document.addEventListener("click", handleClickOutside);
+  const editInput = editInputTemplate.cloneNode(true);
+  editInput.value = taskText.textContent;
+  replaceLabelWithInput(taskItem, taskText, editInput);
+  setupEditListeners(taskItem, taskText, editInput);
 }
 
-function saveEditedTask(input, li) {
-  const newText = input.value.trim();
+function setupEditListeners(taskItem, taskText, editInput) {
+  keydownHandler = (event) =>
+    handleKeydown(event, taskItem, taskText, editInput);
+  clickOutsideHandler = (event) =>
+    handleClickOutside(event, taskItem, taskText, editInput);
+  editInput.addEventListener("keydown", keydownHandler);
+  document.addEventListener("click", clickOutsideHandler);
+}
+
+function handleKeydown(event, taskItem, taskText, editInput) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    saveEditedTask(editInput, taskItem, taskText);
+  } else if (event.key === "Escape") {
+    cancelEdit(taskItem, taskText, editInput);
+  }
+}
+
+function handleClickOutside(event, taskItem, taskText, editInput) {
+  if (!taskItem.contains(event.target)) {
+    cancelEdit(taskItem, taskText, editInput);
+  }
+}
+
+function cancelEdit(taskItem, taskText, editInput) {
+  if (taskItem.contains(editInput)) {
+    taskItem.replaceChild(taskText, editInput);
+  }
+  removeEditListeners(editInput);
+}
+
+function saveEditedTask(editInput, taskItem, taskText) {
+  const newText = editInput.value.trim();
   if (!newText) {
-    li.remove();
+    taskItem.remove();
   } else {
-    const label = document.createElement("label");
-    label.textContent = newText;
-    label.classList.add("task");
-
-    const checkbox = li.querySelector(".todo-list__checkbox");
-    label.setAttribute("for", checkbox.id);
-
-    input.onblur = undefined;
-    li.replaceChild(label, input);
-
-    label.addEventListener("click", preventDefaultAction);
-    label.addEventListener("dblclick", () => editTask(li));
+    taskText.textContent = newText;
+    taskItem.replaceChild(taskText, editInput);
+    taskText.addEventListener("dblclick", () => editTask(taskItem));
   }
+  updateTaskState();
+  removeEditListeners(editInput);
+}
+
+function removeEditListeners(editInput) {
+  if (keydownHandler) {
+    editInput.removeEventListener("keydown", keydownHandler);
+  }
+  if (clickOutsideHandler) {
+    document.removeEventListener("click", clickOutsideHandler);
+  }
+}
+
+function updateTaskState() {
   refreshTaskCounter();
   updateTaskVisibility();
   handleClearBtnVisibility();
@@ -117,7 +126,6 @@ function saveEditedTask(input, li) {
 
 function applyTaskFilter(filter) {
   const tasks = [...taskInputCheck.querySelectorAll(".todo-list__task")];
-
   tasks.forEach((task) => {
     const isChecked = task.classList.contains("checked");
     task.style.display =
@@ -132,11 +140,10 @@ function applyTaskFilter(filter) {
 function saveTasksToLocalStorage() {
   const tasks = Array.from(taskInputCheck.querySelectorAll(".todo-list__task"));
   const tasksData = tasks.reverse().map((task) => {
-    const text = task.querySelector("label").textContent;
+    const text = task.querySelector(".todo-list__text").textContent;
     const isCompleted = task.classList.contains("checked");
     return { text, isCompleted };
   });
-
   localStorage.setItem("tasks", JSON.stringify(tasksData));
 }
 
@@ -146,36 +153,43 @@ function loadStoredTasks() {
   handleClearBtnVisibility();
 }
 
-//Функция добавления задачи
-function addTask(text, isCompleted) {
-  const li = document.createElement("li");
-  li.classList.add("todo-list__task");
-  if (isCompleted) li.classList.add("checked");
-
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.name = "task";
-  checkbox.classList.add("todo-list__checkbox");
-  checkbox.checked = isCompleted;
-
-  const label = document.createElement("label");
-  label.textContent = text;
-  label.classList.add("task");
+// Создание элемента задачи из шаблона
+function createTaskElement(text, isCompleted) {
+  const taskItem = taskTemplate.cloneNode(true);
+  const checkbox = taskItem.querySelector(".todo-list__checkbox");
+  const taskText = taskItem.querySelector(".todo-list__text");
 
   const uniqueId = `task-${crypto.randomUUID()}`;
   checkbox.id = uniqueId;
-  label.setAttribute("for", uniqueId);
+  taskText.setAttribute("for", uniqueId);
+  taskText.textContent = text;
 
-  const span = document.createElement("span");
-  span.innerHTML = "\u00d7";
+  if (isCompleted) {
+    taskItem.classList.add("checked");
+    checkbox.checked = true;
+  }
 
-  li.append(checkbox, label, span);
-  taskInputCheck.insertBefore(li, taskInputCheck.firstChild);
+  return taskItem;
+}
 
-  label.addEventListener("click", preventDefaultAction);
-  li.addEventListener("dblclick", () => editTask(li));
-  span.addEventListener("click", () => {
-    li.remove();
+// Добавление задачи в список
+function appendTaskToList(taskElement) {
+  taskInputCheck.insertBefore(taskElement, taskInputCheck.firstChild);
+}
+
+// Добавление слушателей событий
+function addTaskEventListeners(taskElement) {
+  const checkbox = taskElement.querySelector(".todo-list__checkbox");
+  const taskText = taskElement.querySelector(".todo-list__text");
+  const deleteBtn = taskElement.querySelector(".todo-list__delete-btn");
+
+  taskElement.addEventListener("dblclick", () => {
+    console.log("Двойной клик сработал!");
+    editTask(taskElement);
+  });
+
+  deleteBtn.addEventListener("click", () => {
+    taskElement.remove();
     updateTaskVisibility();
     refreshTaskCounter();
     handleClearBtnVisibility();
@@ -183,51 +197,22 @@ function addTask(text, isCompleted) {
   });
 
   checkbox.addEventListener("change", () => {
-    li.classList.toggle("checked", checkbox.checked);
+    taskElement.classList.toggle("checked", checkbox.checked);
     refreshTaskCounter();
     handleClearBtnVisibility();
     saveTasksToLocalStorage();
   });
 }
 
-function renderTasks(taskArray, containerId) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-
-  taskArray.forEach((task) => {
-    const li = document.createElement("li");
-    li.textContent = task.text;
-    li.classList.add(task.completed ? "completed" : "active");
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = task.completed;
-    checkbox.addEventListener("change", () => toggleTaskStatus(task.id));
-
-    li.prepend(checkbox);
-    container.appendChild(li);
-  });
-}
-
-function updateTaskList() {
-  const activeTasks = tasks.filter((t) => !t.completed);
-  const completedTasks = tasks.filter((t) => t.completed);
-
-  renderTasks(activeTasks, "activeTasksContainer");
-  renderTasks(completedTasks, "completedTasksContainer");
-}
-
-function toggleTaskStatus(taskId) {
-  const task = tasks.find((t) => t.id === taskId);
-  if (!task) return;
-
-  task.completed = !task.completed;
-  updateTaskList();
+// Основная функция добавления задачи
+function addTask(text, isCompleted = false) {
+  const taskElement = createTaskElement(text, isCompleted);
+  appendTaskToList(taskElement);
+  addTaskEventListeners(taskElement);
 }
 
 //№3 Добавляем слушатели событий
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
+form.addEventListener("submit", () => {
   if (taskInput.value.trim()) {
     addTask(taskInput.value, false);
     taskInput.value = "";
@@ -245,7 +230,6 @@ document.addEventListener("click", (event) => {
     filtersContainer,
     controlsContainer,
   ];
-
   const isClickInsideExcluded = excludedContainers.some((container) =>
     container.contains(event.target)
   );
@@ -262,13 +246,11 @@ document.addEventListener("click", (event) => {
   }
 });
 
-// Фильтрация задач с сохранением фильтра
 filterButtons.forEach((button) => {
   button.addEventListener("click", function () {
     filterButtons.forEach((btn) =>
       btn.classList.remove("todo-list__filter_active")
     );
-
     this.classList.add("todo-list__filter_active");
     const selectedFilter = this.textContent.trim();
     applyTaskFilter(selectedFilter);
@@ -276,19 +258,16 @@ filterButtons.forEach((button) => {
   });
 });
 
-// Очистка выполненных задач
 clearBtn.addEventListener("click", () => {
   [...taskInputCheck.children]
     .filter((task) => task.classList.contains("checked"))
-    .map((task) => task.remove());
-
+    .forEach((task) => task.remove());
   updateTaskVisibility();
   refreshTaskCounter();
   handleClearBtnVisibility();
   saveTasksToLocalStorage();
 });
 
-// Кнопка выбора всех задач
 arrow.addEventListener("click", () => {
   const allTasks = taskInputCheck.querySelectorAll(".todo-list__task");
   const allChecked = [...allTasks].every((task) =>
@@ -317,7 +296,6 @@ arrow.addEventListener("click", () => {
 
 function restoreSelectedFilter() {
   const savedFilter = localStorage.getItem("selectedFilter") || "All";
-
   filterButtons.forEach((button) => {
     if (button.textContent.trim() === savedFilter) {
       button.classList.add("todo-list__filter_active");
@@ -325,11 +303,10 @@ function restoreSelectedFilter() {
       button.classList.remove("todo-list__filter_active");
     }
   });
-
   applyTaskFilter(savedFilter);
 }
 
-// Загружаем сохраненные задачи при старте
+// Загружаем задачи при старте
 loadStoredTasks();
 updateTaskVisibility();
 refreshTaskCounter();

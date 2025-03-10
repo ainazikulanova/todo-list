@@ -9,39 +9,10 @@
   align-items: center;
   gap: 10px;
   font-size: 24px;
-  cursor: pointer;
   background-color: #fff;
   border: 1px solid #cfcfcf;
   overflow: hidden;
-}
-
-.todo-list__task label {
-  max-width: 400px;
-  box-sizing: border-box;
-  display: block;
-  word-wrap: break-word;
-  overflow-wrap: anywhere;
-  white-space: normal;
-  line-height: 1.4;
-}
-
-ul .todo-list__task span {
-  position: absolute;
-  right: 5px;
-  width: 40px;
-  height: 40px;
-  font-size: 28px;
-  line-height: 40px;
-  text-align: center;
-  color: #a6a6a6;
-  opacity: 0;
-  transition: all 0.2s;
-}
-
-@media (hover: hover) {
-  .todo-list__task:hover span {
-    opacity: 1;
-  }
+  cursor: pointer;
 }
 
 @media (max-width: 520px) {
@@ -50,17 +21,6 @@ ul .todo-list__task span {
     max-width: 286px;
     gap: 13px;
     font-size: 14px;
-  }
-
-  ul .todo-list__task span {
-    right: 8px;
-    opacity: 1;
-  }
-
-  .todo-list__task label {
-    max-width: 200px;
-    max-height: 4em;
-    overflow-y: auto;
   }
 }
 

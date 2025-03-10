@@ -11,5 +11,7 @@
 @import url(./blocks/todo-list/__filters/todo-list__filters.css);
 @import url(./blocks/todo-list/__filter/todo-list__filter.css);
 @import url(./blocks/todo-list/__checkbox/todo-list__checkbox.css);
-
+@import url(./blocks/todo-list/__text/todo-list__text.css);
 @import url(./blocks/todo-list/__task/todo-list__task.css);
+@import url(./blocks/todo-list/__edit-input/todo-list__edit-input.css);
+@import url(./blocks/todo-list/__delete-btn/todo-list__delete-btn.css);

@@ -1,0 +1,19 @@
+.todo-list__text {
+  max-width: 400px;
+  box-sizing: border-box;
+  display: block;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .todo-list__text {
+    font-size: 16px;
+    max-width: 200px;
+    max-height: 4em;
+    overflow-y: auto;
+  }
+}
