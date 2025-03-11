@@ -25,6 +25,7 @@ const editInputTemplate = app
 // Глобальные переменные
 let keydownHandler;
 let clickOutsideHandler;
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 //№2 Объявляем функции
 function handleClearBtnVisibility() {
@@ -52,6 +53,12 @@ function refreshTaskCounter() {
 function replaceLabelWithInput(taskItem, taskText, editInput) {
   taskItem.replaceChild(editInput, taskText);
   editInput.focus();
+}
+
+function addTask(text, isCompleted = false) {
+  const taskElement = createTaskElement(text, isCompleted);
+  appendTaskToList(taskElement);
+  addTaskEventListeners(taskElement);
 }
 
 function editTask(taskItem) {
@@ -153,7 +160,6 @@ function loadStoredTasks() {
   handleClearBtnVisibility();
 }
 
-// Создание элемента задачи из шаблона
 function createTaskElement(text, isCompleted) {
   const taskItem = taskTemplate.cloneNode(true);
   const checkbox = taskItem.querySelector(".todo-list__checkbox");
@@ -161,54 +167,58 @@ function createTaskElement(text, isCompleted) {
 
   const uniqueId = `task-${crypto.randomUUID()}`;
   checkbox.id = uniqueId;
-  taskText.setAttribute("for", uniqueId);
   taskText.textContent = text;
 
   if (isCompleted) {
     taskItem.classList.add("checked");
     checkbox.checked = true;
   }
-
   return taskItem;
 }
 
-// Добавление задачи в список
 function appendTaskToList(taskElement) {
   taskInputCheck.insertBefore(taskElement, taskInputCheck.firstChild);
 }
 
-// Добавление слушателей событий
 function addTaskEventListeners(taskElement) {
   const checkbox = taskElement.querySelector(".todo-list__checkbox");
   const taskText = taskElement.querySelector(".todo-list__text");
   const deleteBtn = taskElement.querySelector(".todo-list__delete-btn");
 
+  checkbox.addEventListener("change", handleCheckTask);
+
   taskElement.addEventListener("dblclick", () => {
-    console.log("Двойной клик сработал!");
     editTask(taskElement);
   });
 
   deleteBtn.addEventListener("click", () => {
+    const idValue = checkbox.getAttribute("id");
+    tasks = tasks.filter((task) => task.id !== idValue);
     taskElement.remove();
     updateTaskVisibility();
     refreshTaskCounter();
     handleClearBtnVisibility();
-    saveTasksToLocalStorage();
-  });
-
-  checkbox.addEventListener("change", () => {
-    taskElement.classList.toggle("checked", checkbox.checked);
-    refreshTaskCounter();
-    handleClearBtnVisibility();
-    saveTasksToLocalStorage();
+    updateTaskState();
   });
 }
 
-// Основная функция добавления задачи
-function addTask(text, isCompleted = false) {
-  const taskElement = createTaskElement(text, isCompleted);
-  appendTaskToList(taskElement);
-  addTaskEventListeners(taskElement);
+function handleCheckTask(event) {
+  if (event.target.classList.contains("todo-list__checkbox")) {
+    const idValue = event.target.getAttribute("id");
+    const taskElement = event.target.closest(".todo-list__task");
+
+    tasks.forEach((task) => {
+      if (task.id === idValue) {
+        task.complete = !task.complete;
+      }
+    });
+
+    taskElement.classList.toggle("checked", event.target.checked);
+
+    refreshTaskCounter();
+    handleClearBtnVisibility();
+    updateTaskState();
+  }
 }
 
 //№3 Добавляем слушатели событий
@@ -306,7 +316,6 @@ function restoreSelectedFilter() {
   applyTaskFilter(savedFilter);
 }
 
-// Загружаем задачи при старте
 loadStoredTasks();
 updateTaskVisibility();
 refreshTaskCounter();
