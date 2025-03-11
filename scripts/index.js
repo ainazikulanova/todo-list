@@ -35,10 +35,10 @@ function handleClearBtnVisibility() {
 }
 
 function updateTaskVisibility() {
-  const hasTask = taskInputCheck.children.length > 0;
-  controlsContainer.style.display = hasTask ? "flex" : "none";
-  filtersContainer.style.display = hasTask ? "flex" : "none";
-  arrow.classList.toggle("visible", hasTask);
+  const hasVisibleTask = !!taskInputCheck.querySelector(".todo-list__task");
+  controlsContainer.style.display = hasVisibleTask ? "flex" : "none";
+  filtersContainer.style.display = hasVisibleTask ? "flex" : "none";
+  arrow.classList.toggle("visible", hasVisibleTask);
 }
 
 function refreshTaskCounter() {
@@ -111,7 +111,7 @@ function saveEditedTask(editInput, taskItem, taskText) {
     taskItem.replaceChild(taskText, editInput);
     taskText.addEventListener("dblclick", () => editTask(taskItem));
   }
-  updateTaskState();
+  updateTasksState();
   removeEditListeners(editInput);
 }
 
@@ -122,13 +122,6 @@ function removeEditListeners(editInput) {
   if (clickOutsideHandler) {
     document.removeEventListener("click", clickOutsideHandler);
   }
-}
-
-function updateTaskState() {
-  refreshTaskCounter();
-  updateTaskVisibility();
-  handleClearBtnVisibility();
-  saveTasksToLocalStorage();
 }
 
 function applyTaskFilter(filter) {
@@ -157,6 +150,7 @@ function saveTasksToLocalStorage() {
 function loadStoredTasks() {
   const tasksSave = JSON.parse(localStorage.getItem("tasks")) || [];
   tasksSave.forEach((task) => addTask(task.text, task.isCompleted));
+  updateTaskVisibility();
   handleClearBtnVisibility();
 }
 
@@ -195,10 +189,7 @@ function addTaskEventListeners(taskElement) {
     const idValue = checkbox.getAttribute("id");
     tasks = tasks.filter((task) => task.id !== idValue);
     taskElement.remove();
-    updateTaskVisibility();
-    refreshTaskCounter();
-    handleClearBtnVisibility();
-    updateTaskState();
+    updateTasksState();
   });
 }
 
@@ -215,9 +206,16 @@ function handleCheckTask(event) {
 
     taskElement.classList.toggle("checked", event.target.checked);
 
-    refreshTaskCounter();
-    handleClearBtnVisibility();
-    updateTaskState();
+    updateTasksState();
+
+    const activeFilterElement = filtersContainer.querySelector(
+      ".todo-list__filter_active"
+    );
+    const activeFilter = activeFilterElement
+      ? activeFilterElement.textContent.trim()
+      : "All";
+
+    applyTaskFilter(activeFilter);
   }
 }
 
@@ -226,10 +224,7 @@ form.addEventListener("submit", () => {
   if (taskInput.value.trim()) {
     addTask(taskInput.value, false);
     taskInput.value = "";
-    updateTaskVisibility();
-    refreshTaskCounter();
-    handleClearBtnVisibility();
-    saveTasksToLocalStorage();
+    updateTasksState();
   }
 });
 
@@ -249,10 +244,7 @@ document.addEventListener("click", (event) => {
   if (taskInput.value.trim()) {
     addTask(taskInput.value, false);
     taskInput.value = "";
-    updateTaskVisibility();
-    refreshTaskCounter();
-    handleClearBtnVisibility();
-    saveTasksToLocalStorage();
+    updateTasksState();
   }
 });
 
@@ -272,10 +264,8 @@ clearBtn.addEventListener("click", () => {
   [...taskInputCheck.children]
     .filter((task) => task.classList.contains("checked"))
     .forEach((task) => task.remove());
+  updateTasksState();
   updateTaskVisibility();
-  refreshTaskCounter();
-  handleClearBtnVisibility();
-  saveTasksToLocalStorage();
 });
 
 arrow.addEventListener("click", () => {
@@ -291,9 +281,7 @@ arrow.addEventListener("click", () => {
   });
 
   arrow.classList.toggle("completed", !allChecked);
-  refreshTaskCounter();
-  handleClearBtnVisibility();
-  saveTasksToLocalStorage();
+  updateTasksState();
 
   const activeFilterElement = filtersContainer.querySelector(
     ".todo-list__filter_active"
@@ -314,6 +302,13 @@ function restoreSelectedFilter() {
     }
   });
   applyTaskFilter(savedFilter);
+}
+
+function updateTasksState() {
+  refreshTaskCounter();
+  updateTaskVisibility();
+  handleClearBtnVisibility();
+  saveTasksToLocalStorage();
 }
 
 loadStoredTasks();

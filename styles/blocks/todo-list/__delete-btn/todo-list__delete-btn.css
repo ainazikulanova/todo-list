@@ -1,6 +1,10 @@
+.todo-list__task:hover .todo-list__delete-btn {
+  opacity: 1;
+}
+
 .todo-list__delete-btn {
   position: absolute;
-  right: 5px;
+  right: 20px;
   width: 40px;
   height: 40px;
   font-size: 28px;
@@ -10,17 +14,13 @@
   opacity: 0;
   transition: all 0.2s;
   cursor: pointer;
-}
-
-@media (hover: hover) {
-  .todo-list__delete-btn:hover {
-    opacity: 1;
-  }
+  background: none;
+  border: none;
 }
 
 @media (max-width: 520px) {
   .todo-list__delete-btn {
-    right: 8px;
+    right: 10px;
     opacity: 1;
   }
 }
