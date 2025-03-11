@@ -56,7 +56,12 @@ function replaceLabelWithInput(taskItem, taskText, editInput) {
 }
 
 function addTask(text, isCompleted = false) {
+  const uniqueId = `task-${crypto.randomUUID()}`;
+  tasks.push({ id: uniqueId, text, isCompleted });
+
   const taskElement = createTaskElement(text, isCompleted);
+  taskElement.querySelector(".todo-list__checkbox").id = uniqueId;
+
   appendTaskToList(taskElement);
   addTaskEventListeners(taskElement);
 }
@@ -125,8 +130,8 @@ function removeEditListeners(editInput) {
 }
 
 function applyTaskFilter(filter) {
-  const tasks = [...tasksConteiner.querySelectorAll(".todo-list__task")];
-  tasks.forEach((task) => {
+  const taskElements = [...tasksConteiner.querySelectorAll(".todo-list__task")];
+  taskElements.forEach((task) => {
     const isChecked = task.classList.contains("checked");
     task.style.display =
       filter === "All" ||
@@ -138,12 +143,15 @@ function applyTaskFilter(filter) {
 }
 
 function saveTasksToLocalStorage() {
-  const tasks = Array.from(tasksConteiner.querySelectorAll(".todo-list__task"));
-  const tasksData = tasks.reverse().map((task) => {
+  const taskElements = [...tasksConteiner.querySelectorAll(".todo-list__task")];
+
+  const tasksData = taskElements.reverse().map((task) => {
     const text = task.querySelector(".todo-list__text").textContent;
     const isCompleted = task.classList.contains("checked");
-    return { text, isCompleted };
+    const id = task.querySelector(".todo-list__checkbox").id;
+    return { id, text, isCompleted };
   });
+
   localStorage.setItem("tasks", JSON.stringify(tasksData));
 }
 
