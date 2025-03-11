@@ -4,6 +4,7 @@
 
 .todo-list__delete-btn {
   position: absolute;
+  z-index: 1;
   right: 20px;
   width: 40px;
   height: 40px;

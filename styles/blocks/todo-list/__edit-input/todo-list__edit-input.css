@@ -1,5 +1,6 @@
 .todo-list__edit-input {
   position: absolute;
+  z-index: 2;
   padding: 15px 15px 15px 40px;
   width: 441px;
   height: auto;
