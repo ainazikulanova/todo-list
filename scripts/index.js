@@ -8,7 +8,7 @@ const taskInput = form.querySelector("#taskInput");
 const filtersContainer = app.querySelector(".todo-list__filters");
 const filterButtons = filtersContainer.querySelectorAll(".todo-list__filter");
 
-const tasksConteiner = app.querySelector(".todo-list__tasks");
+const tasksContainer = app.querySelector(".todo-list__tasks");
 
 const controlsContainer = app.querySelector(".todo-list__controls");
 const taskCounter = controlsContainer.querySelector("#taskCounter");
@@ -29,20 +29,20 @@ let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 //№2 Объявляем функции
 function handleClearBtnVisibility() {
-  const hasCheckedTasks = tasksConteiner.querySelector(".checked") !== null;
+  const hasCheckedTasks = tasksContainer.querySelector(".checked") !== null;
   clearBtn.style.opacity = hasCheckedTasks ? "1" : "0";
   clearBtn.style.pointerEvents = hasCheckedTasks ? "auto" : "none";
 }
 
 function updateTaskVisibility() {
-  const hasVisibleTask = !!tasksConteiner.querySelector(".todo-list__task");
+  const hasVisibleTask = !!tasksContainer.querySelector(".todo-list__task");
   controlsContainer.style.display = hasVisibleTask ? "flex" : "none";
   filtersContainer.style.display = hasVisibleTask ? "flex" : "none";
   arrow.classList.toggle("visible", hasVisibleTask);
 }
 
 function refreshTaskCounter() {
-  const activeTasks = tasksConteiner.querySelectorAll(
+  const activeTasks = tasksContainer.querySelectorAll(
     ".todo-list__task:not(.checked)"
   ).length;
   taskCounter.textContent = `${activeTasks} item${
@@ -130,7 +130,7 @@ function removeEditListeners(editInput) {
 }
 
 function applyTaskFilter(filter) {
-  const taskElements = [...tasksConteiner.querySelectorAll(".todo-list__task")];
+  const taskElements = [...tasksContainer.querySelectorAll(".todo-list__task")];
   taskElements.forEach((task) => {
     const isChecked = task.classList.contains("checked");
     task.style.display =
@@ -143,7 +143,7 @@ function applyTaskFilter(filter) {
 }
 
 function saveTasksToLocalStorage() {
-  const taskElements = [...tasksConteiner.querySelectorAll(".todo-list__task")];
+  const taskElements = [...tasksContainer.querySelectorAll(".todo-list__task")];
 
   const tasksData = taskElements.reverse().map((task) => {
     const text = task.querySelector(".todo-list__text").textContent;
@@ -179,7 +179,7 @@ function createTaskElement(text, isCompleted) {
 }
 
 function appendTaskToList(taskElement) {
-  tasksConteiner.insertBefore(taskElement, tasksConteiner.firstChild);
+  tasksContainer.insertBefore(taskElement, tasksContainer.firstChild);
 }
 
 function addTaskEventListeners(taskElement) {
@@ -208,7 +208,7 @@ function handleCheckTask(event) {
 
     tasks.forEach((task) => {
       if (task.id === idValue) {
-        task.complete = !task.complete;
+        task.isComplete = !task.isComplete;
       }
     });
 
@@ -240,7 +240,7 @@ form.addEventListener("submit", (event) => {
 document.addEventListener("click", (event) => {
   const excludedContainers = [
     form,
-    tasksConteiner,
+    tasksContainer,
     filtersContainer,
     controlsContainer,
   ];
@@ -270,7 +270,7 @@ filterButtons.forEach((button) => {
 });
 
 clearBtn.addEventListener("click", () => {
-  [...tasksConteiner.children]
+  [...tasksContainer.children]
     .filter((task) => task.classList.contains("checked"))
     .forEach((task) => task.remove());
   updateTasksState();
@@ -278,7 +278,7 @@ clearBtn.addEventListener("click", () => {
 });
 
 arrow.addEventListener("click", () => {
-  const allTasks = tasksConteiner.querySelectorAll(".todo-list__task");
+  const allTasks = tasksContainer.querySelectorAll(".todo-list__task");
   const allChecked = [...allTasks].every((task) =>
     task.classList.contains("checked")
   );
