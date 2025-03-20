@@ -1,4 +1,5 @@
 .todo-list__text {
+  display: block;
   max-width: 400px;
   box-sizing: border-box;
   display: block;

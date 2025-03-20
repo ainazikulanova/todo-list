@@ -1,5 +1,6 @@
 //№1 Объявляем переменные и константы
-const app = document.querySelector(".todo-list");
+const body = document.querySelector(".body");
+const app = body.querySelector(".todo-list");
 
 const form = app.querySelector("#form");
 const arrow = form.querySelector("#arrow");
@@ -14,13 +15,9 @@ const controlsContainer = app.querySelector(".todo-list__controls");
 const taskCounter = controlsContainer.querySelector("#taskCounter");
 const clearBtn = controlsContainer.querySelector("#clearBtn");
 
-const taskTemplate = app
+const taskTemplate = body
   .querySelector("#todo-list__item")
   .content.querySelector(".todo-list__task");
-
-const editInputTemplate = app
-  .querySelector("#todo-list__edit-input-template")
-  .content.querySelector(".todo-list__edit-input");
 
 // Глобальные переменные
 let keydownHandler;
@@ -68,11 +65,14 @@ function addTask(text, isCompleted = false) {
 
 function editTask(taskItem) {
   const taskText = taskItem.querySelector(".todo-list__text");
-  if (!taskText) return;
+  const editInput = taskItem.querySelector(".todo-list__edit-input");
+  if (!taskText || !editInput) return;
 
-  const editInput = editInputTemplate.cloneNode(true);
+  editInput.style.display = "block";
+  taskText.style.display = "none";
   editInput.value = taskText.textContent;
-  replaceLabelWithInput(taskItem, taskText, editInput);
+  editInput.focus();
+
   setupEditListeners(taskItem, taskText, editInput);
 }
 
@@ -101,9 +101,8 @@ function handleClickOutside(event, taskItem, taskText, editInput) {
 }
 
 function cancelEdit(taskItem, taskText, editInput) {
-  if (taskItem.contains(editInput)) {
-    taskItem.replaceChild(taskText, editInput);
-  }
+  taskText.style.display = "block";
+  editInput.style.display = "none";
   removeEditListeners(editInput);
 }
 
@@ -113,8 +112,8 @@ function saveEditedTask(editInput, taskItem, taskText) {
     taskItem.remove();
   } else {
     taskText.textContent = newText;
-    taskItem.replaceChild(taskText, editInput);
-    taskText.addEventListener("dblclick", () => editTask(taskItem));
+    taskText.style.display = "block";
+    editInput.style.display = "none";
   }
   updateTasksState();
   removeEditListeners(editInput);
@@ -144,20 +143,17 @@ function applyTaskFilter(filter) {
 
 function saveTasksToLocalStorage() {
   const taskElements = [...tasksContainer.querySelectorAll(".todo-list__task")];
-
   const tasksData = taskElements.reverse().map((task) => {
     const text = task.querySelector(".todo-list__text").textContent;
     const isCompleted = task.classList.contains("checked");
     const id = task.querySelector(".todo-list__checkbox").id;
     return { id, text, isCompleted };
   });
-
   localStorage.setItem("tasks", JSON.stringify(tasksData));
 }
 
 function loadStoredTasks() {
-  const tasksSave = JSON.parse(localStorage.getItem("tasks")) || [];
-  tasksSave.forEach((task) => addTask(task.text, task.isCompleted));
+  tasks.forEach((task) => addTask(task.text, task.isCompleted));
   updateTaskVisibility();
   handleClearBtnVisibility();
 }
@@ -213,7 +209,6 @@ function handleCheckTask(event) {
     });
 
     taskElement.classList.toggle("checked", event.target.checked);
-
     updateTasksState();
 
     const activeFilterElement = filtersContainer.querySelector(
@@ -222,7 +217,6 @@ function handleCheckTask(event) {
     const activeFilter = activeFilterElement
       ? activeFilterElement.textContent.trim()
       : "All";
-
     applyTaskFilter(activeFilter);
   }
 }
