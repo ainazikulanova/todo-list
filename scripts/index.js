@@ -26,22 +26,20 @@ let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 //№2 Объявляем функции
 function handleClearBtnVisibility() {
-  const hasCheckedTasks = tasksContainer.querySelector(".checked") !== null;
+  const hasCheckedTasks = tasks.some((task) => task.isCompleted);
   clearBtn.style.opacity = hasCheckedTasks ? "1" : "0";
   clearBtn.style.pointerEvents = hasCheckedTasks ? "auto" : "none";
 }
 
 function updateTaskVisibility() {
-  const hasVisibleTask = !!tasksContainer.querySelector(".todo-list__task");
+  const hasVisibleTask = tasks.length > 0;
   controlsContainer.style.display = hasVisibleTask ? "flex" : "none";
   filtersContainer.style.display = hasVisibleTask ? "flex" : "none";
   arrow.classList.toggle("visible", hasVisibleTask);
 }
 
 function refreshTaskCounter() {
-  const activeTasks = tasksContainer.querySelectorAll(
-    ".todo-list__task:not(.checked)"
-  ).length;
+  const activeTasks = tasks.filter((task) => !task.isCompleted).length;
   taskCounter.textContent = `${activeTasks} item${
     activeTasks !== 1 ? "s" : ""
   } left`;
@@ -130,25 +128,21 @@ function removeEditListeners(editInput) {
 
 function applyTaskFilter(filter) {
   const taskElements = [...tasksContainer.querySelectorAll(".todo-list__task")];
-  taskElements.forEach((task) => {
-    const isChecked = task.classList.contains("checked");
-    task.style.display =
+  taskElements.forEach((taskElement) => {
+    const taskId = taskElement.querySelector(".todo-list__checkbox").id;
+    const task = tasks.find((t) => t.id === taskId);
+
+    const shouldShow =
       filter === "All" ||
-      (filter === "Active" && !isChecked) ||
-      (filter === "Completed" && isChecked)
-        ? "flex"
-        : "none";
+      (filter === "Active" && !task.isCompleted) ||
+      (filter === "Completed" && task.isCompleted);
+
+    taskElement.style.display = shouldShow ? "flex" : "none";
   });
 }
 
 function saveTasksToLocalStorage() {
-  const taskElements = [...tasksContainer.querySelectorAll(".todo-list__task")];
-  const tasksData = taskElements.reverse().map((task) => {
-    const text = task.querySelector(".todo-list__text").textContent;
-    const isCompleted = task.classList.contains("checked");
-    const id = task.querySelector(".todo-list__checkbox").id;
-    return { id, text, isCompleted };
-  });
+  tasksData = [...tasks].reverse();
   localStorage.setItem("tasks", JSON.stringify(tasksData));
 }
 
@@ -200,15 +194,17 @@ function addTaskEventListeners(taskElement) {
 function handleCheckTask(event) {
   if (event.target.classList.contains("todo-list__checkbox")) {
     const idValue = event.target.getAttribute("id");
-    const taskElement = event.target.closest(".todo-list__task");
+    const task = tasks.find((t) => t.id === idValue);
 
-    tasks.forEach((task) => {
-      if (task.id === idValue) {
-        task.isComplete = !task.isComplete;
-      }
-    });
+    if (task) {
+      task.isCompleted = !task.isCompleted;
 
-    taskElement.classList.toggle("checked", event.target.checked);
+      const checkbox = document.querySelector(`#${idValue}`);
+      const taskElement = checkbox.closest(".todo-list__task");
+
+      checkbox.checked = task.isCompleted;
+      taskElement.classList.toggle("checked", task.isCompleted);
+    }
     updateTasksState();
 
     const activeFilterElement = filtersContainer.querySelector(
