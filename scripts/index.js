@@ -127,27 +127,36 @@ function removeEditListeners(editInput) {
 }
 
 function applyTaskFilter(filter) {
-  const taskElements = [...tasksContainer.querySelectorAll(".todo-list__task")];
-  taskElements.forEach((taskElement) => {
-    const taskId = taskElement.querySelector(".todo-list__checkbox").id;
-    const task = tasks.find((t) => t.id === taskId);
+  tasksContainer.innerHTML = "";
 
-    const shouldShow =
+  const filteredTasks = tasks.filter((task) => {
+    return (
       filter === "All" ||
       (filter === "Active" && !task.isCompleted) ||
-      (filter === "Completed" && task.isCompleted);
+      (filter === "Completed" && task.isCompleted)
+    );
+  });
 
-    taskElement.style.display = shouldShow ? "flex" : "none";
+  filteredTasks.forEach((task) => {
+    const taskElement = createTaskElement(task.text, task.isCompleted);
+    taskElement.querySelector(".todo-list__checkbox").id = task.id;
+    appendTaskToList(taskElement);
+    addTaskEventListeners(taskElement);
   });
 }
 
 function saveTasksToLocalStorage() {
-  tasksData = [...tasks].reverse();
+  const tasksData = [...tasks].reverse();
   localStorage.setItem("tasks", JSON.stringify(tasksData));
 }
 
 function loadStoredTasks() {
-  tasks.forEach((task) => addTask(task.text, task.isCompleted));
+  tasks.forEach((task) => {
+    const taskElement = createTaskElement(task.text, task.isCompleted);
+    taskElement.querySelector(".todo-list__checkbox").id = task.id;
+    appendTaskToList(taskElement);
+    addTaskEventListeners(taskElement);
+  });
   updateTaskVisibility();
   handleClearBtnVisibility();
 }
@@ -186,8 +195,14 @@ function addTaskEventListeners(taskElement) {
   deleteBtn.addEventListener("click", () => {
     const idValue = checkbox.getAttribute("id");
     tasks = tasks.filter((task) => task.id !== idValue);
-    taskElement.remove();
     updateTasksState();
+    const activeFilterElement = filtersContainer.querySelector(
+      ".todo-list__filter_active"
+    );
+    const activeFilter = activeFilterElement
+      ? activeFilterElement.textContent.trim()
+      : "All";
+    applyTaskFilter(activeFilter);
   });
 }
 
@@ -198,12 +213,6 @@ function handleCheckTask(event) {
 
     if (task) {
       task.isCompleted = !task.isCompleted;
-
-      const checkbox = document.querySelector(`#${idValue}`);
-      const taskElement = checkbox.closest(".todo-list__task");
-
-      checkbox.checked = task.isCompleted;
-      taskElement.classList.toggle("checked", task.isCompleted);
     }
     updateTasksState();
 
@@ -260,26 +269,24 @@ filterButtons.forEach((button) => {
 });
 
 clearBtn.addEventListener("click", () => {
-  [...tasksContainer.children]
-    .filter((task) => task.classList.contains("checked"))
-    .forEach((task) => task.remove());
+  tasks = tasks.filter((task) => !task.isCompleted);
   updateTasksState();
   updateTaskVisibility();
+  const activeFilterElement = filtersContainer.querySelector(
+    ".todo-list__filter_active"
+  );
+  const activeFilter = activeFilterElement
+    ? activeFilterElement.textContent.trim()
+    : "All";
+  applyTaskFilter(activeFilter);
 });
 
 arrow.addEventListener("click", () => {
-  const allTasks = tasksContainer.querySelectorAll(".todo-list__task");
-  const allChecked = [...allTasks].every((task) =>
-    task.classList.contains("checked")
-  );
-
-  allTasks.forEach((task) => {
-    const checkbox = task.querySelector(".todo-list__checkbox");
-    task.classList.toggle("checked", !allChecked);
-    checkbox.checked = !allChecked;
+  const allChecked = tasks.every((task) => task.isCompleted);
+  tasks.forEach((task) => {
+    task.isCompleted = !allChecked;
   });
 
-  arrow.classList.toggle("completed", !allChecked);
   updateTasksState();
 
   const activeFilterElement = filtersContainer.querySelector(
@@ -288,7 +295,9 @@ arrow.addEventListener("click", () => {
   const activeFilter = activeFilterElement
     ? activeFilterElement.textContent.trim()
     : "All";
+
   applyTaskFilter(activeFilter);
+  arrow.classList.toggle("completed", !allChecked);
 });
 
 function restoreSelectedFilter() {
