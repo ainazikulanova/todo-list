@@ -20,8 +20,6 @@ const taskTemplate = body
   .content.querySelector(".todo-list__task");
 
 // Глобальные переменные
-let keydownHandler;
-let clickOutsideHandler;
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 //№2 Объявляем функции
@@ -71,16 +69,15 @@ function editTask(taskItem) {
   editInput.value = taskText.textContent;
   editInput.focus();
 
-  setupEditListeners(taskItem, taskText, editInput);
-}
-
-function setupEditListeners(taskItem, taskText, editInput) {
-  keydownHandler = (event) =>
+  const keydownListener = (event) =>
     handleKeydown(event, taskItem, taskText, editInput);
-  clickOutsideHandler = (event) =>
+  const clickOutsideListener = (event) =>
     handleClickOutside(event, taskItem, taskText, editInput);
-  editInput.addEventListener("keydown", keydownHandler);
-  document.addEventListener("click", clickOutsideHandler);
+
+  editInput.addEventListener("keydown", keydownListener);
+  document.addEventListener("click", clickOutsideListener);
+
+  editInput.listeners = { keydownListener, clickOutsideListener };
 }
 
 function handleKeydown(event, taskItem, taskText, editInput) {
@@ -118,12 +115,14 @@ function saveEditedTask(editInput, taskItem, taskText) {
 }
 
 function removeEditListeners(editInput) {
-  if (keydownHandler) {
-    editInput.removeEventListener("keydown", keydownHandler);
+  const { keydownListener, clickOutsideListener } = editInput.listeners || {};
+  if (keydownListener) {
+    editInput.removeEventListener("keydown", keydownListener);
   }
-  if (clickOutsideHandler) {
-    document.removeEventListener("click", clickOutsideHandler);
+  if (clickOutsideListener) {
+    document.removeEventListener("click", clickOutsideListener);
   }
+  editInput.listeners = null;
 }
 
 function applyTaskFilter(filter) {
