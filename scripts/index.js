@@ -53,9 +53,7 @@ function addTask(text, isCompleted = false) {
   const uniqueId = `task-${crypto.randomUUID()}`;
   tasks.push({ id: uniqueId, text, isCompleted });
 
-  const taskElement = createTaskElement(text, isCompleted);
-  taskElement.querySelector(".todo-list__checkbox").id = uniqueId;
-
+  const taskElement = createTaskElement(text, isCompleted, uniqueId);
   appendTaskToList(taskElement);
   addTaskEventListeners(taskElement);
 }
@@ -103,12 +101,21 @@ function cancelEdit(taskItem, taskText, editInput) {
 
 function saveEditedTask(editInput, taskItem, taskText) {
   const newText = editInput.value.trim();
+  const checkbox = taskItem.querySelector(".todo-list__checkbox");
+  const taskId = checkbox.id;
+
   if (!newText) {
     taskItem.remove();
+    tasks = tasks.filter((task) => task.id !== taskId);
   } else {
     taskText.textContent = newText;
     taskText.style.display = "block";
     editInput.style.display = "none";
+
+    const task = tasks.find((t) => t.id === taskId);
+    if (task) {
+      task.text = newText;
+    }
   }
   updateTasksState();
   removeEditListeners(editInput);
@@ -125,34 +132,38 @@ function removeEditListeners(editInput) {
   editInput.listeners = null;
 }
 
-function applyTaskFilter(filter) {
-  tasksContainer.innerHTML = "";
-
-  const filteredTasks = tasks.filter((task) => {
+function filterTasks(filter) {
+  return tasks.filter((task) => {
     return (
       filter === "All" ||
       (filter === "Active" && !task.isCompleted) ||
       (filter === "Completed" && task.isCompleted)
     );
   });
+}
 
+function renderTasks(filteredTasks) {
+  tasksContainer.innerHTML = "";
   filteredTasks.forEach((task) => {
-    const taskElement = createTaskElement(task.text, task.isCompleted);
-    taskElement.querySelector(".todo-list__checkbox").id = task.id;
+    const taskElement = createTaskElement(task.text, task.isCompleted, task.id);
     appendTaskToList(taskElement);
     addTaskEventListeners(taskElement);
   });
 }
 
+function applyTaskFilter(filter) {
+  const filteredTasks = filterTasks(filter);
+  renderTasks(filteredTasks);
+}
+
 function saveTasksToLocalStorage() {
-  const tasksData = [...tasks].reverse();
+  const tasksData = [...tasks];
   localStorage.setItem("tasks", JSON.stringify(tasksData));
 }
 
 function loadStoredTasks() {
   tasks.forEach((task) => {
-    const taskElement = createTaskElement(task.text, task.isCompleted);
-    taskElement.querySelector(".todo-list__checkbox").id = task.id;
+    const taskElement = createTaskElement(task.text, task.isCompleted, task.id);
     appendTaskToList(taskElement);
     addTaskEventListeners(taskElement);
   });
@@ -160,13 +171,12 @@ function loadStoredTasks() {
   handleClearBtnVisibility();
 }
 
-function createTaskElement(text, isCompleted) {
+function createTaskElement(text, isCompleted, id) {
   const taskItem = taskTemplate.cloneNode(true);
   const checkbox = taskItem.querySelector(".todo-list__checkbox");
   const taskText = taskItem.querySelector(".todo-list__text");
 
-  const uniqueId = `task-${crypto.randomUUID()}`;
-  checkbox.id = uniqueId;
+  checkbox.id = id;
   taskText.textContent = text;
 
   if (isCompleted) {
