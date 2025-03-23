@@ -21,6 +21,7 @@ const taskTemplate = body
 
 // Глобальные переменные
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let activeFilter = localStorage.getItem("selectedFilter") || "All";
 
 //№2 Объявляем функции
 function handleClearBtnVisibility() {
@@ -82,7 +83,6 @@ function editTask(taskItem) {
 
 function handleKeydown(event, taskItem, taskText, editInput) {
   if (event.key === "Enter") {
-    event.preventDefault();
     saveEditedTask(editInput, taskItem, taskText);
   } else if (event.key === "Escape") {
     cancelEdit(taskItem, taskText, editInput);
@@ -182,7 +182,6 @@ function appendTaskToList(taskElement) {
 
 function addTaskEventListeners(taskElement) {
   const checkbox = taskElement.querySelector(".todo-list__checkbox");
-  const taskText = taskElement.querySelector(".todo-list__text");
   const deleteBtn = taskElement.querySelector(".todo-list__delete-btn");
 
   checkbox.addEventListener("change", handleCheckTask);
@@ -195,12 +194,6 @@ function addTaskEventListeners(taskElement) {
     const idValue = checkbox.getAttribute("id");
     tasks = tasks.filter((task) => task.id !== idValue);
     updateTasksState();
-    const activeFilterElement = filtersContainer.querySelector(
-      ".todo-list__filter_active"
-    );
-    const activeFilter = activeFilterElement
-      ? activeFilterElement.textContent.trim()
-      : "All";
     applyTaskFilter(activeFilter);
   });
 }
@@ -214,13 +207,6 @@ function handleCheckTask(event) {
       task.isCompleted = !task.isCompleted;
     }
     updateTasksState();
-
-    const activeFilterElement = filtersContainer.querySelector(
-      ".todo-list__filter_active"
-    );
-    const activeFilter = activeFilterElement
-      ? activeFilterElement.textContent.trim()
-      : "All";
     applyTaskFilter(activeFilter);
   }
 }
@@ -261,9 +247,9 @@ filterButtons.forEach((button) => {
       btn.classList.remove("todo-list__filter_active")
     );
     this.classList.add("todo-list__filter_active");
-    const selectedFilter = this.textContent.trim();
-    applyTaskFilter(selectedFilter);
-    localStorage.setItem("selectedFilter", selectedFilter);
+    activeFilter = this.textContent.trim();
+    applyTaskFilter(activeFilter);
+    localStorage.setItem("selectedFilter", activeFilter);
   });
 });
 
@@ -271,12 +257,6 @@ clearBtn.addEventListener("click", () => {
   tasks = tasks.filter((task) => !task.isCompleted);
   updateTasksState();
   updateTaskVisibility();
-  const activeFilterElement = filtersContainer.querySelector(
-    ".todo-list__filter_active"
-  );
-  const activeFilter = activeFilterElement
-    ? activeFilterElement.textContent.trim()
-    : "All";
   applyTaskFilter(activeFilter);
 });
 
@@ -287,28 +267,19 @@ arrow.addEventListener("click", () => {
   });
 
   updateTasksState();
-
-  const activeFilterElement = filtersContainer.querySelector(
-    ".todo-list__filter_active"
-  );
-  const activeFilter = activeFilterElement
-    ? activeFilterElement.textContent.trim()
-    : "All";
-
   applyTaskFilter(activeFilter);
   arrow.classList.toggle("completed", !allChecked);
 });
 
 function restoreSelectedFilter() {
-  const savedFilter = localStorage.getItem("selectedFilter") || "All";
   filterButtons.forEach((button) => {
-    if (button.textContent.trim() === savedFilter) {
+    if (button.textContent.trim() === activeFilter) {
       button.classList.add("todo-list__filter_active");
     } else {
       button.classList.remove("todo-list__filter_active");
     }
   });
-  applyTaskFilter(savedFilter);
+  applyTaskFilter(activeFilter);
 }
 
 function updateTasksState() {
