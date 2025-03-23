@@ -49,25 +49,32 @@ function replaceLabelWithInput(taskItem, taskText, editInput) {
   editInput.focus();
 }
 
-function addTask(text, isCompleted = false) {
+function createTaskData(text, isCompleted = false) {
   const uniqueId = `task-${crypto.randomUUID()}`;
-  tasks.push({ id: uniqueId, text, isCompleted });
+  return { id: uniqueId, text, isCompleted };
+}
 
-  const taskElement = createTaskElement(text, isCompleted, uniqueId);
+function addTask(text, isCompleted = false) {
+  const taskData = createTaskData(text, isCompleted);
+  tasks.push(taskData);
+
+  const taskElement = createTaskElement(
+    taskData.text,
+    taskData.isCompleted,
+    taskData.id
+  );
   appendTaskToList(taskElement);
   addTaskEventListeners(taskElement);
 }
 
-function editTask(taskItem) {
-  const taskText = taskItem.querySelector(".todo-list__text");
-  const editInput = taskItem.querySelector(".todo-list__edit-input");
-  if (!taskText || !editInput) return;
-
+function startEditing(taskItem, taskText, editInput) {
   editInput.style.display = "block";
   taskText.style.display = "none";
   editInput.value = taskText.textContent;
   editInput.focus();
+}
 
+function addEditListeners(taskItem, taskText, editInput) {
   const keydownListener = (event) =>
     handleKeydown(event, taskItem, taskText, editInput);
   const clickOutsideListener = (event) =>
@@ -77,6 +84,15 @@ function editTask(taskItem) {
   document.addEventListener("click", clickOutsideListener);
 
   editInput.listeners = { keydownListener, clickOutsideListener };
+}
+
+function editTask(taskItem) {
+  const taskText = taskItem.querySelector(".todo-list__text");
+  const editInput = taskItem.querySelector(".todo-list__edit-input");
+  if (!taskText || !editInput) return;
+
+  startEditing(taskItem, taskText, editInput);
+  addEditListeners(taskItem, taskText, editInput);
 }
 
 function handleKeydown(event, taskItem, taskText, editInput) {
@@ -99,24 +115,31 @@ function cancelEdit(taskItem, taskText, editInput) {
   removeEditListeners(editInput);
 }
 
+function updateTaskText(taskText, editInput, newText) {
+  taskText.textContent = newText;
+  taskText.style.display = "block";
+  editInput.style.display = "none";
+}
+
+function removeTask(taskItem, taskId) {
+  taskItem.remove();
+  tasks = tasks.filter((task) => task.id !== taskId);
+}
+
 function saveEditedTask(editInput, taskItem, taskText) {
   const newText = editInput.value.trim();
   const checkbox = taskItem.querySelector(".todo-list__checkbox");
   const taskId = checkbox.id;
+  const task = tasks.find((t) => t.id === taskId);
 
   if (!newText) {
-    taskItem.remove();
-    tasks = tasks.filter((task) => task.id !== taskId);
-  } else {
-    taskText.textContent = newText;
-    taskText.style.display = "block";
-    editInput.style.display = "none";
-
-    const task = tasks.find((t) => t.id === taskId);
-    if (task) {
-      task.text = newText;
-    }
+    removeTask(taskItem, taskId);
+    return;
   }
+
+  updateTaskText(taskText, editInput, newText);
+  if (task) task.text = newText;
+
   updateTasksState();
   removeEditListeners(editInput);
 }
@@ -133,13 +156,12 @@ function removeEditListeners(editInput) {
 }
 
 function filterTasks(filter) {
-  return tasks.filter((task) => {
-    return (
+  return tasks.filter(
+    (task) =>
       filter === "All" ||
       (filter === "Active" && !task.isCompleted) ||
       (filter === "Completed" && task.isCompleted)
-    );
-  });
+  );
 }
 
 function renderTasks(filteredTasks) {
@@ -190,35 +212,34 @@ function appendTaskToList(taskElement) {
   tasksContainer.insertBefore(taskElement, tasksContainer.firstChild);
 }
 
+function deleteTask(taskId) {
+  tasks = tasks.filter((task) => task.id !== taskId);
+  updateTasksState();
+  applyTaskFilter(activeFilter);
+}
+
 function addTaskEventListeners(taskElement) {
   const checkbox = taskElement.querySelector(".todo-list__checkbox");
   const deleteBtn = taskElement.querySelector(".todo-list__delete-btn");
 
   checkbox.addEventListener("change", handleCheckTask);
-
-  taskElement.addEventListener("dblclick", () => {
-    editTask(taskElement);
-  });
-
+  taskElement.addEventListener("dblclick", () => editTask(taskElement));
   deleteBtn.addEventListener("click", () => {
     const idValue = checkbox.getAttribute("id");
-    tasks = tasks.filter((task) => task.id !== idValue);
-    updateTasksState();
-    applyTaskFilter(activeFilter);
+    deleteTask(idValue);
   });
 }
 
 function handleCheckTask(event) {
-  if (event.target.classList.contains("todo-list__checkbox")) {
-    const idValue = event.target.getAttribute("id");
-    const task = tasks.find((t) => t.id === idValue);
+  if (!event.target.classList.contains("todo-list__checkbox")) return;
 
-    if (task) {
-      task.isCompleted = !task.isCompleted;
-    }
-    updateTasksState();
-    applyTaskFilter(activeFilter);
+  const idValue = event.target.getAttribute("id");
+  const task = tasks.find((t) => t.id === idValue);
+  if (task) {
+    task.isCompleted = !task.isCompleted;
   }
+  updateTasksState();
+  applyTaskFilter(activeFilter);
 }
 
 //№3 Добавляем слушатели событий
