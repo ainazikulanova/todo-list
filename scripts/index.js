@@ -44,11 +44,6 @@ function refreshTaskCounter() {
   } left`;
 }
 
-function replaceLabelWithInput(taskItem, taskText, editInput) {
-  taskItem.replaceChild(editInput, taskText);
-  editInput.focus();
-}
-
 function createTaskData(text, isCompleted = false) {
   const uniqueId = `task-${crypto.randomUUID()}`;
   return { id: uniqueId, text, isCompleted };
@@ -67,7 +62,7 @@ function addTask(text, isCompleted = false) {
   addTaskEventListeners(taskElement);
 }
 
-function startEditing(taskItem, taskText, editInput) {
+function startEditing(taskText, editInput) {
   editInput.style.display = "block";
   taskText.style.display = "none";
   editInput.value = taskText.textContent;
@@ -91,7 +86,7 @@ function editTask(taskItem) {
   const editInput = taskItem.querySelector(".todo-list__edit-input");
   if (!taskText || !editInput) return;
 
-  startEditing(taskItem, taskText, editInput);
+  startEditing(taskText, editInput);
   addEditListeners(taskItem, taskText, editInput);
 }
 
