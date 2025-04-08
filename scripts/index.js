@@ -53,6 +53,7 @@ function createTaskElement(text, isCompleted, id) {
   const taskItem = taskTemplate.cloneNode(true);
   const checkbox = taskItem.querySelector(".todo-list__checkbox");
   const taskText = taskItem.querySelector(".todo-list__text");
+  const deleteBtn = taskItem.querySelector(".todo-list__delete-btn");
 
   checkbox.id = id;
   taskText.textContent = text;
@@ -61,6 +62,17 @@ function createTaskElement(text, isCompleted, id) {
     taskItem.classList.add("checked");
     checkbox.checked = true;
   }
+
+  const changeListener = (event) => handleCheckTask(event);
+  const dblClickListener = () => editTask(taskItem);
+  const deleteListener = () => deleteTask(id, taskItem);
+
+  checkbox.addEventListener("change", changeListener);
+  taskItem.addEventListener("dblclick", dblClickListener);
+  deleteBtn.addEventListener("click", deleteListener);
+
+  taskItem.listeners = { changeListener, dblClickListener, deleteListener };
+
   return taskItem;
 }
 
@@ -82,7 +94,6 @@ function renderTasks(filteredTasks) {
   filteredTasks.forEach((task) => {
     const taskElement = createTaskElement(task.text, task.isCompleted, task.id);
     appendTaskToList(taskElement);
-    addTaskEventListeners(taskElement);
   });
 }
 
@@ -228,43 +239,22 @@ function deleteTask(taskId, taskElement) {
   updateTasksState();
   applyTaskFilter(activeFilter);
 }
-//тут
-function addTaskEventListeners(taskElement) {
-  const checkbox = taskElement.querySelector(".todo-list__checkbox");
-  const deleteBtn = taskElement.querySelector(".todo-list__delete-btn");
-
-  const changeListener = (event) => handleCheckTask(event);
-  const dblClickListener = () => editTask(taskElement);
-  const deleteListener = () => {
-    const idValue = checkbox.getAttribute("id");
-    deleteTask(idValue, taskElement);
-  };
-
-  checkbox.addEventListener("change", changeListener);
-  taskElement.addEventListener("dblclick", dblClickListener);
-  deleteBtn.addEventListener("click", deleteListener);
-
-  taskElement.listeners = { changeListener, dblClickListener, deleteListener };
-}
 
 function addTask(text, isCompleted = false) {
   const taskData = createTaskData(text, isCompleted);
   tasks.push(taskData);
-
   const taskElement = createTaskElement(
     taskData.text,
     taskData.isCompleted,
     taskData.id
   );
   appendTaskToList(taskElement);
-  addTaskEventListeners(taskElement);
 }
 
 function loadStoredTasks() {
   tasks.forEach((task) => {
     const taskElement = createTaskElement(task.text, task.isCompleted, task.id);
     appendTaskToList(taskElement);
-    addTaskEventListeners(taskElement);
   });
   updateTaskVisibility();
   handleClearBtnVisibility();
