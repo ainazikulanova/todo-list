@@ -74,47 +74,21 @@ function filterTasks(filter) {
   );
 }
 
-function removeEditListeners(editInput) {
-  const { keydownListener, clickOutsideListener } = editInput.listeners || {};
-  if (keydownListener)
-    editInput.removeEventListener("keydown", keydownListener);
-  if (clickOutsideListener)
-    document.removeEventListener("click", clickOutsideListener);
-  editInput.listeners = null;
-}
-
 function updateTaskText(taskText, editInput, newText) {
   taskText.textContent = newText;
   taskText.style.display = "block";
   editInput.style.display = "none";
 }
 
-function removeTaskListeners(taskItem) {
-  if (taskItem.listeners) {
-    const { changeListener, dblClickListener, deleteListener } =
-      taskItem.listeners;
-    const checkbox = taskItem.querySelector(".todo-list__checkbox");
-    const deleteBtn = taskItem.querySelector(".todo-list__delete-btn");
-
-    if (changeListener) checkbox.removeEventListener("change", changeListener);
-    if (dblClickListener)
-      taskItem.removeEventListener("dblclick", dblClickListener);
-    if (deleteListener) deleteBtn.removeEventListener("click", deleteListener);
-
-    taskItem.listeners = null;
-  }
-}
-
 function removeTask(taskItem, taskId) {
-  removeTaskListeners(taskItem);
   taskItem.remove();
   tasks = tasks.filter((task) => task.id !== taskId);
+  updateTasksState();
 }
 
 function cancelEdit(taskText, editInput) {
   taskText.style.display = "block";
   editInput.style.display = "none";
-  removeEditListeners(editInput);
 }
 
 function saveEditedTask(editInput, taskItem, taskText) {
@@ -130,33 +104,26 @@ function saveEditedTask(editInput, taskItem, taskText) {
     if (task) task.text = newText;
   }
   updateTasksState();
-  removeEditListeners(editInput);
 }
 
 function handleClickOutside(event, taskItem, taskText, editInput) {
   if (!taskItem.contains(event.target)) {
     cancelEdit(taskText, editInput);
+    editInput.removeEventListener("keydown", handleKeydown);
+    document.removeEventListener("click", handleClickOutside);
   }
 }
 
 function handleKeydown(event, taskItem, taskText, editInput) {
   if (event.key === "Enter") {
     saveEditedTask(editInput, taskItem, taskText);
+    editInput.removeEventListener("keydown", handleKeydown);
+    document.removeEventListener("click", handleClickOutside);
   } else if (event.key === "Escape") {
     cancelEdit(taskText, editInput);
+    editInput.removeEventListener("keydown", handleKeydown);
+    document.removeEventListener("click", handleClickOutside);
   }
-}
-
-function addEditListeners(taskItem, taskText, editInput) {
-  const keydownListener = (event) =>
-    handleKeydown(event, taskItem, taskText, editInput);
-  const clickOutsideListener = (event) =>
-    handleClickOutside(event, taskItem, taskText, editInput);
-
-  editInput.addEventListener("keydown", keydownListener);
-  document.addEventListener("click", clickOutsideListener);
-
-  editInput.listeners = { keydownListener, clickOutsideListener };
 }
 
 function startEditing(taskText, editInput) {
@@ -178,20 +145,10 @@ function handleCheckTask(event) {
 }
 
 function deleteTask(taskId, taskElement) {
-  removeTaskListeners(taskElement);
   tasks = tasks.filter((task) => task.id !== taskId);
   taskElement.remove();
   updateTasksState();
   applyTaskFilter(activeFilter);
-}
-
-function editTask(taskItem) {
-  const taskText = taskItem.querySelector(".todo-list__text");
-  const editInput = taskItem.querySelector(".todo-list__edit-input");
-  if (!taskText || !editInput) return;
-
-  startEditing(taskText, editInput);
-  addEditListeners(taskItem, taskText, editInput);
 }
 
 function createTaskElement(text, isCompleted, id) {
@@ -199,6 +156,7 @@ function createTaskElement(text, isCompleted, id) {
   const checkbox = taskItem.querySelector(".todo-list__checkbox");
   const taskText = taskItem.querySelector(".todo-list__text");
   const deleteBtn = taskItem.querySelector(".todo-list__delete-btn");
+  const editInput = taskItem.querySelector(".todo-list__edit-input");
 
   checkbox.id = id;
   taskText.textContent = text;
@@ -208,15 +166,19 @@ function createTaskElement(text, isCompleted, id) {
     checkbox.checked = true;
   }
 
-  const changeListener = (event) => handleCheckTask(event);
-  const dblClickListener = () => editTask(taskItem);
-  const deleteListener = () => deleteTask(id, taskItem);
+  const onKeydown = (event) =>
+    handleKeydown(event, taskItem, taskText, editInput);
+  const onClickOutside = (event) =>
+    handleClickOutside(event, taskItem, taskText, editInput);
 
-  checkbox.addEventListener("change", changeListener);
-  taskItem.addEventListener("dblclick", dblClickListener);
-  deleteBtn.addEventListener("click", deleteListener);
+  checkbox.addEventListener("change", handleCheckTask);
+  deleteBtn.addEventListener("click", () => deleteTask(id, taskItem));
 
-  taskItem.listeners = { changeListener, dblClickListener, deleteListener };
+  taskItem.addEventListener("dblclick", () => {
+    startEditing(taskText, editInput);
+    editInput.addEventListener("keydown", onKeydown);
+    document.addEventListener("click", onClickOutside);
+  });
 
   return taskItem;
 }
