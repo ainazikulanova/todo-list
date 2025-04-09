@@ -74,10 +74,20 @@ function filterTasks(filter) {
   );
 }
 
-function updateTaskText(taskText, editInput, newText) {
-  taskText.textContent = newText;
+function showTaskText(taskText, editInput) {
   taskText.style.display = "block";
   editInput.style.display = "none";
+}
+
+function showEditInput(taskText, editInput) {
+  taskText.style.display = "none";
+  editInput.style.display = "block";
+  editInput.focus();
+}
+
+function updateTaskText(taskText, editInput, newText) {
+  taskText.textContent = newText;
+  showTaskText(taskText, editInput);
 }
 
 function removeTask(taskItem, taskId) {
@@ -87,8 +97,7 @@ function removeTask(taskItem, taskId) {
 }
 
 function cancelEdit(taskText, editInput) {
-  taskText.style.display = "block";
-  editInput.style.display = "none";
+  showTaskText(taskText, editInput);
 }
 
 function saveEditedTask(editInput, taskItem, taskText) {
@@ -127,10 +136,14 @@ function handleKeydown(event, taskItem, taskText, editInput) {
 }
 
 function startEditing(taskText, editInput) {
-  editInput.style.display = "block";
-  taskText.style.display = "none";
+  showEditInput(taskText, editInput);
   editInput.value = taskText.textContent;
   editInput.focus();
+}
+
+function updateAndFilterTasks() {
+  updateTasksState();
+  applyTaskFilter(activeFilter);
 }
 
 function handleCheckTask(event) {
@@ -139,16 +152,14 @@ function handleCheckTask(event) {
     const task = tasks.find((t) => t.id === idValue);
 
     if (task) task.isCompleted = !task.isCompleted;
-    updateTasksState();
-    applyTaskFilter(activeFilter);
+    updateAndFilterTasks();
   }
 }
 
 function deleteTask(taskId, taskElement) {
   tasks = tasks.filter((task) => task.id !== taskId);
   taskElement.remove();
-  updateTasksState();
-  applyTaskFilter(activeFilter);
+  updateAndFilterTasks();
 }
 
 function createTaskElement(text, isCompleted, id) {
@@ -227,14 +238,18 @@ function restoreSelectedFilter() {
   applyTaskFilter(activeFilter);
 }
 
-// №3 Добавляем слушатели событий
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
+function handleTaskSubmission() {
   if (taskInput.value.trim()) {
     addTask(taskInput.value, false);
     taskInput.value = "";
-    updateTasksState();
+    updateAndFilterTasks();
   }
+}
+
+// №3 Добавляем слушатели событий
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  handleTaskSubmission();
 });
 
 document.addEventListener("click", (event) => {
@@ -250,11 +265,7 @@ document.addEventListener("click", (event) => {
 
   if (isClickInsideExcluded) return;
 
-  if (taskInput.value.trim()) {
-    addTask(taskInput.value, false);
-    taskInput.value = "";
-    updateTasksState();
-  }
+  handleTaskSubmission();
 });
 
 filterButtons.forEach((button) => {
@@ -271,9 +282,8 @@ filterButtons.forEach((button) => {
 
 clearBtn.addEventListener("click", () => {
   tasks = tasks.filter((task) => !task.isCompleted);
-  updateTasksState();
   updateTaskVisibility();
-  applyTaskFilter(activeFilter);
+  updateAndFilterTasks();
 });
 
 arrow.addEventListener("click", () => {
@@ -282,8 +292,7 @@ arrow.addEventListener("click", () => {
     task.isCompleted = !allChecked;
   });
 
-  updateTasksState();
-  applyTaskFilter(activeFilter);
+  updateAndFilterTasks();
   arrow.classList.toggle("completed", !allChecked);
 });
 
