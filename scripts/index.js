@@ -115,30 +115,31 @@ function saveEditedTask(editInput, taskItem, taskText) {
   updateTasksState();
 }
 
+function removeEditListeners(editInput) {
+  editInput.removeEventListener("keydown", handleKeydown);
+  document.removeEventListener("click", handleClickOutside);
+}
+
 function handleClickOutside(event, taskItem, taskText, editInput) {
   if (!taskItem.contains(event.target)) {
     cancelEdit(taskText, editInput);
-    editInput.removeEventListener("keydown", handleKeydown);
-    document.removeEventListener("click", handleClickOutside);
+    removeEditListeners(editInput);
   }
 }
 
 function handleKeydown(event, taskItem, taskText, editInput) {
   if (event.key === "Enter") {
     saveEditedTask(editInput, taskItem, taskText);
-    editInput.removeEventListener("keydown", handleKeydown);
-    document.removeEventListener("click", handleClickOutside);
+    removeEditListeners(editInput);
   } else if (event.key === "Escape") {
     cancelEdit(taskText, editInput);
-    editInput.removeEventListener("keydown", handleKeydown);
-    document.removeEventListener("click", handleClickOutside);
+    removeEditListeners(editInput);
   }
 }
 
 function startEditing(taskText, editInput) {
   showEditInput(taskText, editInput);
   editInput.value = taskText.textContent;
-  editInput.focus();
 }
 
 function updateAndFilterTasks() {
@@ -223,8 +224,7 @@ function loadStoredTasks() {
     const taskElement = createTaskElement(task.text, task.isCompleted, task.id);
     appendTaskToList(taskElement);
   });
-  updateTaskVisibility();
-  handleClearBtnVisibility();
+  updateAndFilterTasks();
 }
 
 function restoreSelectedFilter() {
@@ -282,7 +282,6 @@ filterButtons.forEach((button) => {
 
 clearBtn.addEventListener("click", () => {
   tasks = tasks.filter((task) => !task.isCompleted);
-  updateTaskVisibility();
   updateAndFilterTasks();
 });
 
