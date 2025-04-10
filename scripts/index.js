@@ -45,8 +45,7 @@ function refreshTaskCounter() {
 }
 
 function saveTasksToLocalStorage() {
-  const tasksData = [...tasks];
-  localStorage.setItem("tasks", JSON.stringify(tasksData));
+  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 function updateTasksState() {
@@ -228,13 +227,18 @@ function loadStoredTasks() {
 }
 
 function restoreSelectedFilter() {
-  filterButtons.forEach((button) => {
-    if (button.textContent.trim() === activeFilter) {
-      button.classList.add("todo-list__filter_active");
-    } else {
-      button.classList.remove("todo-list__filter_active");
-    }
-  });
+  const activeButton = document.querySelector(".todo-list__filter_active");
+  if (activeButton) {
+    activeButton.classList.remove("todo-list__filter_active");
+  }
+
+  const selectedButton = Array.from(filterButtons).find(
+    (button) => button.textContent.trim() === activeFilter
+  );
+  if (selectedButton) {
+    selectedButton.classList.add("todo-list__filter_active");
+  }
+
   applyTaskFilter(activeFilter);
 }
 
@@ -269,14 +273,26 @@ document.addEventListener("click", (event) => {
 });
 
 filterButtons.forEach((button) => {
-  button.addEventListener("click", function () {
-    filterButtons.forEach((btn) =>
-      btn.classList.remove("todo-list__filter_active")
+  button.addEventListener("click", (event) => {
+    const clickedButton = event.currentTarget;
+
+    if (clickedButton.classList.contains("todo-list__filter_active")) return;
+
+    const currentActiveButton = document.querySelector(
+      ".todo-list__filter_active"
     );
-    this.classList.add("todo-list__filter_active");
-    activeFilter = this.textContent.trim();
-    applyTaskFilter(activeFilter);
-    localStorage.setItem("selectedFilter", activeFilter);
+    if (currentActiveButton) {
+      currentActiveButton.classList.remove("todo-list__filter_active");
+    }
+
+    clickedButton.classList.add("todo-list__filter_active");
+
+    const newFilter = clickedButton.textContent.trim();
+    if (activeFilter !== newFilter) {
+      activeFilter = newFilter;
+      applyTaskFilter(activeFilter);
+      localStorage.setItem("selectedFilter", activeFilter);
+    }
   });
 });
 
@@ -296,6 +312,4 @@ arrow.addEventListener("click", () => {
 });
 
 loadStoredTasks();
-updateTaskVisibility();
-refreshTaskCounter();
 restoreSelectedFilter();
